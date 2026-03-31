@@ -1,5 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { AlertTriangle, Radio } from "lucide-react";
 import KpiCard from "@/components/KpiCard";
 import PriceChart from "@/components/PriceChart";
@@ -11,28 +10,7 @@ import { dailyData } from "@/lib/oilData";
 const prewar = dailyData[5]; // Feb 27
 
 const Index = () => {
-  const [activeWarDay, setActiveWarDay] = useState<number | null>(null);
-
-  const latest = useMemo(() => {
-    if (activeWarDay === null) return dailyData[dailyData.length - 1];
-    // Find closest dailyData entry by war_day
-    let closest = dailyData[0];
-    let minDiff = Math.abs(dailyData[0].war_day - activeWarDay);
-    for (const d of dailyData) {
-      const diff = Math.abs(d.war_day - activeWarDay);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closest = d;
-      }
-    }
-    return closest;
-  }, [activeWarDay]);
-
-  const handleActiveEvent = useCallback((warDay: number | null) => {
-    setActiveWarDay(warDay);
-  }, []);
-
-  const defaultLatest = dailyData[dailyData.length - 1];
+  const latest = dailyData[dailyData.length - 1];
 
   return (
     <div className="min-h-screen bg-background grid-pattern">
@@ -52,7 +30,7 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-2">
             <Radio className="h-3 w-3 animate-pulse-glow text-crisis-red" />
-            <span className="font-mono text-xs text-crisis-red">LIVE — Day {defaultLatest.war_day}</span>
+            <span className="font-mono text-xs text-crisis-red">LIVE — Day {latest.war_day}</span>
           </div>
         </div>
       </header>
@@ -113,7 +91,7 @@ const Index = () => {
           />
           <KpiCard
             title="Days at War"
-            value={`${defaultLatest.war_day}`}
+             value={`${latest.war_day}`}
             change="Ongoing conflict"
             changeType="neutral"
             subtitle={`Since Feb 28, 2026`}
@@ -150,7 +128,7 @@ const Index = () => {
         </div>
 
         {/* Timeline */}
-        <EventsTimeline onActiveEvent={handleActiveEvent} />
+         <EventsTimeline />
 
         {/* Footer */}
         <motion.footer
