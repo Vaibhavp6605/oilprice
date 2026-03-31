@@ -118,7 +118,7 @@ const FuelChart = () => {
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5, delay: 0.5 }}
-    className="rounded-lg border border-border bg-card p-5"
+    className="rounded-lg border border-border bg-card p-5 flex flex-col"
   >
     <div className="mb-3 space-y-2">
       <div className="flex items-center justify-between">
@@ -143,7 +143,8 @@ const FuelChart = () => {
         </Badge>
       </div>
     </div>
-    <ResponsiveContainer width="100%" height={200}>
+    <div className="flex-1 min-h-[200px]">
+    <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
         <defs>
           <linearGradient id="gasG" x1="0" y1="0" x2="0" y2="1">
@@ -181,6 +182,7 @@ const FuelChart = () => {
         <Area type="monotone" dataKey="Diesel" stroke="hsl(280,70%,60%)" fill="url(#dieselG)" strokeWidth={2} />
       </AreaChart>
     </ResponsiveContainer>
+    </div>
   </motion.div>
   );
 };
