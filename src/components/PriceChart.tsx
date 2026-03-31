@@ -103,7 +103,8 @@ const SingleChart = ({ title, subtitle, dataKey, color, gradientId, delay, domai
       </AreaChart>
     </ResponsiveContainer>
   </motion.div>
-);
+  );
+};
 
 const FuelChart = () => (
   <motion.div
