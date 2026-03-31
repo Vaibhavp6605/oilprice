@@ -72,6 +72,43 @@ const Index = () => (
         />
       </div>
 
+      {/* Extra KPI Row */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KpiCard
+          title="Brent-WTI Spread"
+          value={`$${(latest.brent_usd_barrel - latest.wti_usd_barrel).toFixed(1)}`}
+          change={`Pre-war: $${(prewar.brent_usd_barrel - prewar.wti_usd_barrel).toFixed(1)}`}
+          changeType="up"
+          subtitle="Global vs US benchmark gap"
+          delay={0.4}
+        />
+        <KpiCard
+          title="Days at War"
+          value={`${latest.war_day}`}
+          change="Ongoing conflict"
+          changeType="neutral"
+          subtitle={`Since Feb 28, 2026`}
+          glowClass="card-glow-red"
+          delay={0.5}
+        />
+        <KpiCard
+          title="Supply Loss"
+          value={`${(prewar.iran_production_mbpd - latest.iran_production_mbpd).toFixed(1)} mbpd`}
+          change={`-${((1 - latest.iran_production_mbpd / prewar.iran_production_mbpd) * 100).toFixed(0)}% Iranian output`}
+          changeType="down"
+          subtitle="Barrels/day taken offline"
+          delay={0.6}
+        />
+        <KpiCard
+          title="Consumer Cost Impact"
+          value={`+$${((latest.us_gas_avg_gallon - prewar.us_gas_avg_gallon) * 50).toFixed(0)}/mo`}
+          change={`+$${(latest.us_gas_avg_gallon - prewar.us_gas_avg_gallon).toFixed(2)}/gal surge`}
+          changeType="up"
+          subtitle="Est. extra cost per household"
+          delay={0.7}
+        />
+      </div>
+
       {/* Charts Row */}
       <PriceChart />
 
