@@ -84,8 +84,66 @@ const SingleChart = ({ title, subtitle, dataKey, color, gradientId, delay, domai
   </motion.div>
 );
 
+const FuelChart = () => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay: 0.5 }}
+    className="rounded-lg border border-border bg-card p-5"
+  >
+    <div className="mb-3 flex items-center justify-between">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">US Gas & Diesel</h3>
+        <p className="text-[10px] text-muted-foreground">Consumer fuel prices ($/gallon)</p>
+      </div>
+      <div className="text-right">
+        <p className="font-mono text-xs" style={{ color: "hsl(142,70%,45%)" }}>Gas ${chartData[chartData.length - 1].Gas}</p>
+        <p className="font-mono text-xs" style={{ color: "hsl(280,70%,60%)" }}>Diesel ${chartData[chartData.length - 1].Diesel}</p>
+      </div>
+    </div>
+    <ResponsiveContainer width="100%" height={200}>
+      <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+        <defs>
+          <linearGradient id="gasG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="hsl(142,70%,45%)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="hsl(142,70%,45%)" stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id="dieselG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="hsl(280,70%,60%)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="hsl(280,70%,60%)" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(240,6%,16%)" />
+        <XAxis dataKey="date" tick={{ fontSize: 9, fill: "hsl(215,12%,50%)" }} tickLine={false} axisLine={false} interval={2} />
+        <YAxis tick={{ fontSize: 9, fill: "hsl(215,12%,50%)" }} tickLine={false} axisLine={false} domain={[2.5, 5]} />
+        <Tooltip
+          content={({ active, payload }: any) => {
+            if (!active || !payload?.length) return null;
+            const d = payload[0].payload;
+            return (
+              <div className="min-w-[160px] rounded-lg border border-border bg-card p-3 shadow-xl">
+                <p className="font-mono text-xs text-muted-foreground">{d.fullDate}</p>
+                {d.warDay >= 1 && (
+                  <span className="rounded-full bg-crisis-red/15 px-2 py-0.5 font-mono text-[10px] font-bold text-crisis-red">Day {d.warDay}</span>
+                )}
+                <div className="mt-1 space-y-1">
+                  <p className="font-mono text-sm" style={{ color: "hsl(142,70%,45%)" }}>Gas: ${d.Gas}/gal</p>
+                  <p className="font-mono text-sm" style={{ color: "hsl(280,70%,60%)" }}>Diesel: ${d.Diesel}/gal</p>
+                </div>
+              </div>
+            );
+          }}
+        />
+        <ReferenceLine x="02-28" stroke="hsl(0,85%,60%)" strokeDasharray="4 4" label={{ value: "WAR", fill: "hsl(0,85%,60%)", fontSize: 9, position: "top" }} />
+        <Area type="monotone" dataKey="Gas" stroke="hsl(142,70%,45%)" fill="url(#gasG)" strokeWidth={2} />
+        <Area type="monotone" dataKey="Diesel" stroke="hsl(280,70%,60%)" fill="url(#dieselG)" strokeWidth={2} />
+      </AreaChart>
+    </ResponsiveContainer>
+  </motion.div>
+);
+
 const PriceChart = () => (
-  <div className="grid gap-4 md:grid-cols-3">
+  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
     <SingleChart
       title="Brent Crude"
       subtitle="Global benchmark (North Sea)"
@@ -113,6 +171,7 @@ const PriceChart = () => (
       delay={0.4}
       domain={[60, 160]}
     />
+    <FuelChart />
   </div>
 );
 
