@@ -106,21 +106,41 @@ const SingleChart = ({ title, subtitle, dataKey, color, gradientId, delay, domai
   );
 };
 
-const FuelChart = () => (
+const FuelChart = () => {
+  const latest = chartData[chartData.length - 1];
+  const prewarGas = chartData[5].Gas as number;
+  const prewarDiesel = chartData[5].Diesel as number;
+  const gasPct = ((latest.Gas as number - prewarGas) / prewarGas * 100).toFixed(1);
+  const dieselPct = ((latest.Diesel as number - prewarDiesel) / prewarDiesel * 100).toFixed(1);
+
+  return (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.5, delay: 0.5 }}
     className="rounded-lg border border-border bg-card p-5"
   >
-    <div className="mb-3 flex items-center justify-between">
-      <div>
-        <h3 className="text-sm font-semibold text-foreground">US Gas & Diesel</h3>
-        <p className="text-[10px] text-muted-foreground">Consumer fuel prices ($/gallon)</p>
+    <div className="mb-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Droplets className="h-4 w-4 text-muted-foreground" />
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">US Gas & Diesel</h3>
+            <p className="text-[10px] text-muted-foreground">Consumer fuel prices ($/gallon)</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="font-mono text-xs" style={{ color: "hsl(142,70%,45%)" }}>Gas ${latest.Gas}</p>
+          <p className="font-mono text-xs" style={{ color: "hsl(280,70%,60%)" }}>Diesel ${latest.Diesel}</p>
+        </div>
       </div>
-      <div className="text-right">
-        <p className="font-mono text-xs" style={{ color: "hsl(142,70%,45%)" }}>Gas ${chartData[chartData.length - 1].Gas}</p>
-        <p className="font-mono text-xs" style={{ color: "hsl(280,70%,60%)" }}>Diesel ${chartData[chartData.length - 1].Diesel}</p>
+      <div className="flex gap-2">
+        <Badge variant="outline" className="gap-1 font-mono text-[10px] border-crisis-red/30 text-crisis-red">
+          <TrendingUp className="h-3 w-3" />Gas +{gasPct}%
+        </Badge>
+        <Badge variant="outline" className="gap-1 font-mono text-[10px] border-crisis-red/30 text-crisis-red">
+          <TrendingUp className="h-3 w-3" />Diesel +{dieselPct}%
+        </Badge>
       </div>
     </div>
     <ResponsiveContainer width="100%" height={200}>
@@ -162,7 +182,8 @@ const FuelChart = () => (
       </AreaChart>
     </ResponsiveContainer>
   </motion.div>
-);
+  );
+};
 
 const PriceChart = () => (
   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
