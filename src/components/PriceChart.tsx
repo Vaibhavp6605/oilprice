@@ -54,22 +54,38 @@ const SingleTooltip = ({ active, payload, dataKey, color }: any) => {
   );
 };
 
-const SingleChart = ({ title, subtitle, dataKey, color, gradientId, delay, domain }: SingleChartProps) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, delay }}
-    className="rounded-lg border border-border bg-card p-5"
-  >
-    <div className="mb-3 flex items-center justify-between">
-      <div>
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        <p className="text-[10px] text-muted-foreground">{subtitle}</p>
+const SingleChart = ({ title, subtitle, dataKey, color, gradientId, delay, domain }: SingleChartProps) => {
+  const latest = chartData[chartData.length - 1];
+  const prewarVal = chartData[5][dataKey as keyof typeof chartData[0]] as number;
+  const latestVal = latest[dataKey as keyof typeof latest] as number;
+  const pctChange = ((latestVal - prewarVal) / prewarVal * 100).toFixed(1);
+  const isUp = Number(pctChange) >= 0;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay }}
+      className="rounded-lg border border-border bg-card p-5"
+    >
+      <div className="mb-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Droplets className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+              <p className="text-[10px] text-muted-foreground">{subtitle}</p>
+            </div>
+          </div>
+          <span className="font-mono text-lg font-bold" style={{ color }}>
+            ${latestVal}
+          </span>
+        </div>
+        <Badge variant="outline" className={`gap-1 font-mono text-[10px] ${isUp ? "border-crisis-red/30 text-crisis-red" : "border-crisis-green/30 text-crisis-green"}`}>
+          {isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+          {isUp ? "+" : ""}{pctChange}% since pre-war
+        </Badge>
       </div>
-      <span className="font-mono text-lg font-bold" style={{ color }}>
-        ${chartData[chartData.length - 1][dataKey as keyof typeof chartData[0]]}
-      </span>
-    </div>
     <ResponsiveContainer width="100%" height={200}>
       <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
         <defs>
