@@ -63,7 +63,7 @@ const Index = () => {
           <KpiCard
             title="Brent Crude"
             value={`$${latest.brent_usd_barrel}`}
-            change={`+${latest.brent_vs_prewar_pct}% from pre-war`}
+            change={`+${((latest.brent_usd_barrel - prewar.brent_usd_barrel) / prewar.brent_usd_barrel * 100).toFixed(1)}% from pre-war`}
             changeType="up"
             subtitle={`Pre-war: $${prewar.brent_usd_barrel}`}
             glowClass="card-glow"
@@ -73,7 +73,7 @@ const Index = () => {
           <KpiCard
             title="US Gas Price"
             value={`$${latest.us_gas_avg_gallon}/gal`}
-            change={`+${latest.gas_vs_prewar_pct}%`}
+            change={`+${((latest.us_gas_avg_gallon - prewar.us_gas_avg_gallon) / prewar.us_gas_avg_gallon * 100).toFixed(1)}%`}
             changeType="up"
             subtitle={`Pre-war: $${prewar.us_gas_avg_gallon}`}
             delay={0.1}
