@@ -4,21 +4,52 @@ import { dailyData } from "@/lib/oilData";
 
 const chartData = dailyData.map((d) => ({
   date: d.date.slice(5),
+  fullDate: d.date,
   Brent: d.brent_usd_barrel,
   WTI: d.wti_usd_barrel,
   Dubai: d.dubai_usd_barrel > 160 ? 155 : d.dubai_usd_barrel,
+  event: d.key_event,
+  warDay: d.war_day,
+  phase: d.phase,
+  gas: d.us_gas_avg_gallon,
+  hormuz: d.strait_hormuz_daily_ships,
 }));
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
   return (
-    <div className="rounded-md border border-border bg-card p-3 shadow-lg">
-      <p className="mb-1 text-xs font-medium text-muted-foreground">{label}</p>
-      {payload.map((p: any) => (
-        <p key={p.name} className="font-mono text-sm" style={{ color: p.color }}>
-          {p.name}: ${p.value.toFixed(2)}
+    <div className="min-w-[220px] rounded-lg border border-border bg-card p-4 shadow-xl">
+      <div className="mb-2 flex items-center justify-between">
+        <p className="font-mono text-xs font-medium text-muted-foreground">{d.fullDate}</p>
+        {d.warDay >= 1 && (
+          <span className="rounded-full bg-crisis-red/15 px-2 py-0.5 font-mono text-[10px] font-bold text-crisis-red">
+            Day {d.warDay}
+          </span>
+        )}
+      </div>
+      <div className="mb-2 space-y-1">
+        {payload.map((p: any) => (
+          <div key={p.name} className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: p.color }} />
+              {p.name}
+            </span>
+            <span className="font-mono text-sm font-semibold" style={{ color: p.color }}>
+              ${p.value.toFixed(2)}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="border-t border-border pt-2 text-[11px] text-muted-foreground">
+        <div className="flex justify-between"><span>US Gas</span><span className="font-mono text-foreground">${d.gas}/gal</span></div>
+        <div className="flex justify-between"><span>Hormuz</span><span className="font-mono text-foreground">{d.hormuz} ships</span></div>
+      </div>
+      {d.event && (
+        <p className="mt-2 border-t border-border pt-2 text-[10px] leading-relaxed text-muted-foreground">
+          📌 {d.event}
         </p>
-      ))}
+      )}
     </div>
   );
 };
