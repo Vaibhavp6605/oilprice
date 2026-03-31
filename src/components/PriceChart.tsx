@@ -186,36 +186,108 @@ const FuelChart = () => {
 };
 
 const PriceChart = () => (
-  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-    <SingleChart
-      title="Brent Crude"
-      subtitle="Global benchmark (North Sea)"
-      dataKey="Brent"
-      color="hsl(14,100%,57%)"
-      gradientId="brentG"
-      delay={0.2}
-      domain={[60, 120]}
-    />
-    <SingleChart
-      title="WTI Crude"
-      subtitle="US benchmark (West Texas)"
-      dataKey="WTI"
-      color="hsl(217,91%,60%)"
-      gradientId="wtiG"
-      delay={0.3}
-      domain={[55, 110]}
-    />
-    <SingleChart
-      title="Dubai Crude"
-      subtitle="Middle East benchmark (UAE)"
-      dataKey="Dubai"
-      color="hsl(38,92%,50%)"
-      gradientId="dubaiG"
-      delay={0.4}
-      domain={[60, 160]}
-    />
+  <div className="grid gap-4 md:grid-cols-2">
+    <CombinedCrudeChart />
     <FuelChart />
   </div>
 );
+
+const CombinedCrudeChart = () => {
+  const latest = chartData[chartData.length - 1];
+  const benchmarks = [
+    { key: "Brent", color: "hsl(14,100%,57%)", grad: "brentG", label: "Brent" },
+    { key: "WTI", color: "hsl(217,91%,60%)", grad: "wtiG", label: "WTI" },
+    { key: "Dubai", color: "hsl(38,92%,50%)", grad: "dubaiG", label: "Dubai" },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="rounded-lg border border-border bg-card p-5"
+    >
+      <div className="mb-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Droplets className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Crude Oil Benchmarks</h3>
+              <p className="text-[10px] text-muted-foreground">Brent · WTI · Dubai ($/barrel)</p>
+            </div>
+          </div>
+          <div className="text-right space-y-0.5">
+            {benchmarks.map((b) => (
+              <p key={b.key} className="font-mono text-xs" style={{ color: b.color }}>
+                {b.label} ${latest[b.key as keyof typeof latest]}
+              </p>
+            ))}
+          </div>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {benchmarks.map((b) => {
+            const prewarVal = chartData[5][b.key as keyof typeof chartData[0]] as number;
+            const latestVal = latest[b.key as keyof typeof latest] as number;
+            const pct = ((latestVal - prewarVal) / prewarVal * 100).toFixed(1);
+            return (
+              <Badge key={b.key} variant="outline" className="gap-1 font-mono text-[10px] border-crisis-red/30 text-crisis-red">
+                <TrendingUp className="h-3 w-3" />{b.label} +{pct}%
+              </Badge>
+            );
+          })}
+        </div>
+      </div>
+      <ResponsiveContainer width="100%" height={280}>
+        <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+          <defs>
+            {benchmarks.map((b) => (
+              <linearGradient key={b.grad} id={b.grad} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={b.color} stopOpacity={0.2} />
+                <stop offset="95%" stopColor={b.color} stopOpacity={0} />
+              </linearGradient>
+            ))}
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(240,6%,16%)" />
+          <XAxis dataKey="date" tick={{ fontSize: 9, fill: "hsl(215,12%,50%)" }} tickLine={false} axisLine={false} interval={2} />
+          <YAxis tick={{ fontSize: 9, fill: "hsl(215,12%,50%)" }} tickLine={false} axisLine={false} domain={[55, 165]} />
+          <Tooltip
+            content={({ active, payload }: any) => {
+              if (!active || !payload?.length) return null;
+              const d = payload[0].payload;
+              return (
+                <div className="min-w-[180px] rounded-lg border border-border bg-card p-3 shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <p className="font-mono text-xs text-muted-foreground">{d.fullDate}</p>
+                    {d.warDay >= 1 && (
+                      <span className="rounded-full bg-crisis-red/15 px-2 py-0.5 font-mono text-[10px] font-bold text-crisis-red">
+                        Day {d.warDay}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1 space-y-1">
+                    {benchmarks.map((b) => (
+                      <p key={b.key} className="font-mono text-sm font-bold" style={{ color: b.color }}>
+                        {b.label}: ${(d[b.key] as number).toFixed(2)}
+                      </p>
+                    ))}
+                  </div>
+                  {d.event && (
+                    <p className="mt-2 border-t border-border pt-2 text-[10px] leading-relaxed text-muted-foreground">
+                      📌 {d.event}
+                    </p>
+                  )}
+                </div>
+              );
+            }}
+          />
+          <ReferenceLine x="02-28" stroke="hsl(0,85%,60%)" strokeDasharray="4 4" label={{ value: "WAR", fill: "hsl(0,85%,60%)", fontSize: 9, position: "top" }} />
+          {benchmarks.map((b) => (
+            <Area key={b.key} type="monotone" dataKey={b.key} stroke={b.color} fill={`url(#${b.grad})`} strokeWidth={2} />
+          ))}
+        </AreaChart>
+      </ResponsiveContainer>
+    </motion.div>
+  );
+};
 
 export default PriceChart;
