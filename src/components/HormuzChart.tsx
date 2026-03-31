@@ -47,6 +47,7 @@ const HormuzChart = () => (
         </Bar>
       </BarChart>
     </ResponsiveContainer>
+    </div>
   </motion.div>
 );
 
