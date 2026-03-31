@@ -113,7 +113,7 @@ const Index = () => {
           />
           <KpiCard
             title="Days at War"
-            value={`${latest.war_day}`}
+            value={`${defaultLatest.war_day}`}
             change="Ongoing conflict"
             changeType="neutral"
             subtitle={`Since Feb 28, 2026`}
