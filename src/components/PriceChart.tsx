@@ -1,6 +1,10 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine, Legend } from "recharts";
 import { motion } from "framer-motion";
+import { TrendingUp, TrendingDown, Droplets } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { dailyData } from "@/lib/oilData";
+
+const prewar = dailyData[5]; // Feb 27 pre-war baseline
 
 const chartData = dailyData.map((d) => ({
   date: d.date.slice(5),
