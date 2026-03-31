@@ -24,8 +24,20 @@ const HormuzChart = () => (
         <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(215,12%,50%)" }} tickLine={false} axisLine={false} />
         <YAxis tick={{ fontSize: 10, fill: "hsl(215,12%,50%)" }} tickLine={false} axisLine={false} />
         <Tooltip
-          contentStyle={{ background: "hsl(240,8%,8%)", border: "1px solid hsl(240,6%,16%)", borderRadius: "6px", fontSize: "12px" }}
-          labelStyle={{ color: "hsl(215,12%,50%)" }}
+          cursor={{ fill: "hsl(240,6%,12%)" }}
+          content={({ active, payload }: any) => {
+            if (!active || !payload?.length) return null;
+            const d = payload[0].payload;
+            return (
+              <div className="rounded-lg border border-border bg-card px-4 py-3 shadow-xl">
+                <p className="text-xs text-muted-foreground">{d.date}</p>
+                <p className="mt-1 font-mono text-xl font-bold text-foreground">{d.ships} <span className="text-xs font-normal text-muted-foreground">ships/day</span></p>
+                <p className={`mt-1 text-[11px] font-medium ${d.isCollapse ? "text-crisis-red" : "text-crisis-blue"}`}>
+                  {d.isCollapse ? "⚠ Strait blocked" : "Normal traffic"}
+                </p>
+              </div>
+            );
+          }}
         />
         <Bar dataKey="ships" radius={[4, 4, 0, 0]}>
           {hormuzData.map((d, i) => (
