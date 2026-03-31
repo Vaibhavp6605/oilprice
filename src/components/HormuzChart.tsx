@@ -15,11 +15,12 @@ const HormuzChart = () => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.6, delay: 0.4 }}
-    className="rounded-lg border border-border bg-card p-6"
+    className="rounded-lg border border-border bg-card p-6 flex flex-col h-full"
   >
     <h3 className="text-lg font-semibold text-foreground">Strait of Hormuz Traffic</h3>
     <p className="mb-4 text-xs text-muted-foreground">Ships per day — 96.4% collapse post-strike</p>
-    <ResponsiveContainer width="100%" height={200}>
+    <div className="flex-1 min-h-[200px]">
+    <ResponsiveContainer width="100%" height="100%">
       <BarChart data={hormuzData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
         <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(215,12%,50%)" }} tickLine={false} axisLine={false} />
         <YAxis tick={{ fontSize: 10, fill: "hsl(215,12%,50%)" }} tickLine={false} axisLine={false} />
@@ -46,6 +47,7 @@ const HormuzChart = () => (
         </Bar>
       </BarChart>
     </ResponsiveContainer>
+    </div>
   </motion.div>
 );
 
