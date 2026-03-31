@@ -8,9 +8,10 @@ const chartData = dailyData.map((d) => ({
   Brent: d.brent_usd_barrel,
   WTI: d.wti_usd_barrel,
   Dubai: d.dubai_usd_barrel,
+  Gas: d.us_gas_avg_gallon,
+  Diesel: d.us_diesel_avg_gallon,
   event: d.key_event,
   warDay: d.war_day,
-  gas: d.us_gas_avg_gallon,
   hormuz: d.strait_hormuz_daily_ships,
 }));
 
