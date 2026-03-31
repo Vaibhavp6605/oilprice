@@ -1,3 +1,4 @@
+import { useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useOilEvents } from "@/hooks/useOilEvents";
 import { Flame, Shield, DollarSign, Crosshair, Zap } from "lucide-react";
@@ -20,8 +21,61 @@ const categoryColors: Record<string, string> = {
   "Military Escalation": "border-crisis-red bg-crisis-red/10 text-crisis-red",
 };
 
-const EventsTimeline = () => {
+interface EventsTimelineProps {
+  onActiveEvent?: (warDay: number | null) => void;
+}
+
+const EventsTimeline = ({ onActiveEvent }: EventsTimelineProps) => {
   const { data: events, isLoading } = useOilEvents();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+  const setItemRef = useCallback((id: number, el: HTMLDivElement | null) => {
+    if (el) itemRefs.current.set(id, el);
+    else itemRefs.current.delete(id);
+  }, []);
+
+  useEffect(() => {
+    if (!events?.length || !onActiveEvent) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the most visible entry
+        let bestEntry: IntersectionObserverEntry | null = null;
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            if (!bestEntry || entry.intersectionRatio > bestEntry.intersectionRatio) {
+              bestEntry = entry;
+            }
+          }
+        }
+        if (bestEntry) {
+          const warDay = Number(bestEntry.target.getAttribute("data-warday"));
+          if (!isNaN(warDay)) onActiveEvent(warDay);
+        }
+      },
+      { threshold: [0.3, 0.6, 1.0], rootMargin: "-20% 0px -60% 0px" }
+    );
+
+    for (const el of itemRefs.current.values()) {
+      observer.observe(el);
+    }
+
+    return () => observer.disconnect();
+  }, [events, onActiveEvent]);
+
+  // Reset when timeline leaves viewport
+  useEffect(() => {
+    if (!containerRef.current || !onActiveEvent) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) onActiveEvent(null);
+      },
+      { threshold: 0 }
+    );
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [onActiveEvent]);
 
   if (isLoading) {
     return (
@@ -38,13 +92,14 @@ const EventsTimeline = () => {
 
   return (
     <motion.div
+      ref={containerRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.5 }}
       className="rounded-lg border border-border bg-card p-6"
     >
       <h3 className="text-lg font-semibold text-foreground">Key Events Timeline</h3>
-      <p className="mb-4 text-xs text-muted-foreground">Live from API — major war milestones</p>
+      <p className="mb-4 text-xs text-muted-foreground">Scroll through events to update KPIs above ↑</p>
 
       <div className="relative space-y-0">
         <div className="absolute left-4 top-0 h-full w-px bg-border" />
@@ -54,6 +109,8 @@ const EventsTimeline = () => {
           return (
             <motion.div
               key={event.id}
+              ref={(el) => setItemRef(event.id, el)}
+              data-warday={event.warDay}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 * i }}
