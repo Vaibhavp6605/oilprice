@@ -58,22 +58,6 @@ const Index = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
-        {/* Active day indicator */}
-        <AnimatePresence>
-          {activeWarDay !== null && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="rounded-md border border-primary/30 bg-primary/5 px-4 py-2 text-center"
-            >
-              <span className="text-xs font-medium text-primary">
-                Viewing Day {latest.war_day} — {latest.date} — {latest.key_event}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* KPI Row */}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <KpiCard
