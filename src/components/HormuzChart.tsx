@@ -2,13 +2,12 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from 
 import { motion } from "framer-motion";
 import { dailyData } from "@/lib/oilData";
 
-const hormuzData = dailyData
-  .filter((_, i) => i % 2 === 0 || dailyData[i].strait_hormuz_daily_ships < 20)
-  .map((d) => ({
-    date: d.date.slice(5),
-    ships: d.strait_hormuz_daily_ships,
-    isCollapse: d.strait_hormuz_daily_ships < 20,
-  }));
+const hormuzData = dailyData.map((d) => ({
+  date: d.date.slice(5),
+  ships: d.strait_hormuz_daily_ships,
+  isCollapse: d.strait_hormuz_daily_ships < 20,
+  warDay: d.war_day,
+}));
 
 const HormuzChart = () => (
   <motion.div
