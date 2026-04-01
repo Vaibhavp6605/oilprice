@@ -60,6 +60,11 @@ export const dailyData: DailyData[] = [
   { date: "2026-04-01", brent_usd_barrel: 115.6, wti_usd_barrel: 106.8, dubai_usd_barrel: 160.4, us_gas_avg_gallon: 3.92, us_diesel_avg_gallon: 4.72, strait_hormuz_daily_ships: 3, iran_production_mbpd: 0.08, key_event: "DAY 33: US strikes Bushehr nuclear power plant", war_day: 33, brent_vs_prewar_pct: 58.1, gas_vs_prewar_pct: 31.5, gas_change_from_prewar_dollars: 0.94, phase: "Week 5 Escalation" },
 ];
 
+// Local fallback/additional timeline events
+export const localTimelineEvents: TimelineEvent[] = [
+  { id: 9001, date: 20260401, eventTitle: "US strikes Bushehr nuclear power plant", description: "US launches precision strikes on Iran's Bushehr nuclear facility, raising fears of radioactive contamination and triggering global condemnation.", warDay: 33, category: "Military Escalation", brentPriceThatDay: 115.6, source: "Local" },
+];
+
 // Predictions based on notebook analysis
 export const predictions = [
   { scenario: "Ceasefire within 30 days", brentTarget: "$85–95", gasTarget: "$3.20–3.40", probability: "25%", color: "crisis-green" as const },
