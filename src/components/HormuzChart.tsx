@@ -2,13 +2,12 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from 
 import { motion } from "framer-motion";
 import { dailyData } from "@/lib/oilData";
 
-const hormuzData = dailyData
-  .filter((_, i) => i % 2 === 0 || dailyData[i].strait_hormuz_daily_ships < 20)
-  .map((d) => ({
-    date: d.date.slice(5),
-    ships: d.strait_hormuz_daily_ships,
-    isCollapse: d.strait_hormuz_daily_ships < 20,
-  }));
+const hormuzData = dailyData.map((d) => ({
+  date: d.date.slice(5),
+  ships: d.strait_hormuz_daily_ships,
+  isCollapse: d.strait_hormuz_daily_ships < 20,
+  warDay: d.war_day,
+}));
 
 const HormuzChart = () => (
   <motion.div
@@ -18,7 +17,7 @@ const HormuzChart = () => (
     className="rounded-lg border border-border bg-card p-6 flex flex-col h-full"
   >
     <h3 className="text-lg font-semibold text-foreground">Strait of Hormuz Traffic</h3>
-    <p className="mb-4 text-xs text-muted-foreground">Ships per day — 96.4% collapse post-strike</p>
+    <p className="mb-4 text-xs text-muted-foreground">Ships per day — ~95% drop post-strike (Source: Kpler, BBC Verify, HormuzTracker)</p>
     <div className="flex-1 min-h-[200px]">
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={hormuzData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
