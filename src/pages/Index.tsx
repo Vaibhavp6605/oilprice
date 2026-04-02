@@ -1,16 +1,30 @@
 import { motion } from "framer-motion";
-import { AlertTriangle, Radio } from "lucide-react";
+import { AlertTriangle, Radio, Wifi, WifiOff } from "lucide-react";
 import KpiCard from "@/components/KpiCard";
 import PriceChart from "@/components/PriceChart";
 import EventsTimeline from "@/components/EventsTimeline";
 import PredictionPanel from "@/components/PredictionPanel";
 import HormuzChart from "@/components/HormuzChart";
 import { dailyData } from "@/lib/oilData";
+import { useEIAPrices } from "@/hooks/useEIAPrices";
 
 const prewar = dailyData[5]; // Feb 27
 
 const Index = () => {
-  const latest = dailyData[dailyData.length - 1];
+  const hardcoded = dailyData[dailyData.length - 1];
+  const { data: live, isLoading: liveLoading, isError: liveError } = useEIAPrices();
+
+  // Merge: live EIA prices override hardcoded when available
+  const latest = {
+    ...hardcoded,
+    brent_usd_barrel: live?.brent_usd_barrel ?? hardcoded.brent_usd_barrel,
+    wti_usd_barrel: live?.wti_usd_barrel ?? hardcoded.wti_usd_barrel,
+    dubai_usd_barrel: live?.dubai_usd_barrel ?? hardcoded.dubai_usd_barrel,
+    us_gas_avg_gallon: live?.us_gas_avg_gallon ?? hardcoded.us_gas_avg_gallon,
+    us_diesel_avg_gallon: live?.us_diesel_avg_gallon ?? hardcoded.us_diesel_avg_gallon,
+  };
+
+  const isLive = !!live && !liveError;
 
   return (
     <div className="min-h-screen bg-background grid-pattern">
@@ -28,9 +42,23 @@ const Index = () => {
               <p className="text-[10px] text-muted-foreground">Real-time conflict impact dashboard</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Radio className="h-3 w-3 animate-pulse-glow text-crisis-red" />
-            <span className="font-mono text-xs text-crisis-red">LIVE — Day {latest.war_day}</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              {isLive ? (
+                <Wifi className="h-3 w-3 text-crisis-green" />
+              ) : liveLoading ? (
+                <Wifi className="h-3 w-3 animate-pulse text-muted-foreground" />
+              ) : (
+                <WifiOff className="h-3 w-3 text-muted-foreground" />
+              )}
+              <span className="font-mono text-[10px] text-muted-foreground">
+                {isLive ? "EIA LIVE" : liveLoading ? "CONNECTING…" : "CACHED"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Radio className="h-3 w-3 animate-pulse-glow text-crisis-red" />
+              <span className="font-mono text-xs text-crisis-red">LIVE — Day {latest.war_day}</span>
+            </div>
           </div>
         </div>
       </header>
@@ -43,7 +71,7 @@ const Index = () => {
             value={`$${latest.brent_usd_barrel}`}
             change={`+${((latest.brent_usd_barrel - prewar.brent_usd_barrel) / prewar.brent_usd_barrel * 100).toFixed(1)}% from pre-war`}
             changeType="up"
-            subtitle={`Pre-war: $${prewar.brent_usd_barrel}`}
+            subtitle={isLive ? `EIA official • Pre-war: $${prewar.brent_usd_barrel}` : `Pre-war: $${prewar.brent_usd_barrel}`}
             glowClass="card-glow"
             delay={0}
             animateValue
@@ -53,7 +81,7 @@ const Index = () => {
             value={`$${latest.us_gas_avg_gallon}/gal`}
             change={`+${((latest.us_gas_avg_gallon - prewar.us_gas_avg_gallon) / prewar.us_gas_avg_gallon * 100).toFixed(1)}%`}
             changeType="up"
-            subtitle={`Pre-war: $${prewar.us_gas_avg_gallon}`}
+            subtitle={isLive ? `EIA official • Pre-war: $${prewar.us_gas_avg_gallon}` : `Pre-war: $${prewar.us_gas_avg_gallon}`}
             delay={0.1}
             animateValue
           />
@@ -85,7 +113,7 @@ const Index = () => {
             value={`$${(latest.brent_usd_barrel - latest.wti_usd_barrel).toFixed(1)}`}
             change={`Pre-war: $${(prewar.brent_usd_barrel - prewar.wti_usd_barrel).toFixed(1)}`}
             changeType="up"
-            subtitle="Global vs US benchmark gap"
+            subtitle={isLive ? "EIA official • Global vs US gap" : "Global vs US benchmark gap"}
             delay={0.4}
             animateValue
           />
@@ -113,7 +141,7 @@ const Index = () => {
             value={`+$${((latest.us_gas_avg_gallon - prewar.us_gas_avg_gallon) * 50).toFixed(0)}/mo`}
             change={`+$${(latest.us_gas_avg_gallon - prewar.us_gas_avg_gallon).toFixed(2)}/gal surge`}
             changeType="up"
-            subtitle="Est. extra cost per household"
+            subtitle={isLive ? "EIA official • Est. extra cost/household" : "Est. extra cost per household"}
             delay={0.7}
             animateValue
           />
@@ -137,7 +165,7 @@ const Index = () => {
           transition={{ delay: 1 }}
           className="border-t border-border py-4 text-center text-xs text-muted-foreground"
         >
-          Data sources: AAA, CNBC, Fortune, NPR, CBS, Reuters, Euronews, IEA — verified as of March 20, 2026
+          Oil prices: U.S. EIA (official) • Events: AAA, CNBC, Fortune, NPR, CBS, Reuters, Euronews, IEA — verified as of April 2, 2026
         </motion.footer>
       </main>
     </div>
