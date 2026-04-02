@@ -1,4 +1,7 @@
-import { corsHeaders } from '@supabase/supabase-js/cors'
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 const EIA_BASE = 'https://api.eia.gov/v2/petroleum/pri/spt/data/';
 const EIA_GAS_BASE = 'https://api.eia.gov/v2/petroleum/pri/gnd/data/';
