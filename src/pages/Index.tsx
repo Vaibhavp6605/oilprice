@@ -5,23 +5,33 @@ import PriceChart from "@/components/PriceChart";
 import EventsTimeline from "@/components/EventsTimeline";
 import PredictionPanel from "@/components/PredictionPanel";
 import HormuzChart from "@/components/HormuzChart";
-import { dailyData } from "@/lib/oilData";
 import { useEIAPrices } from "@/hooks/useEIAPrices";
-
-const prewar = dailyData[5]; // Feb 27
+import { useDailySnapshots } from "@/hooks/useDailySnapshots";
 
 const Index = () => {
-  const hardcoded = dailyData[dailyData.length - 1];
+  const { data: snapshots, isLoading: snapshotsLoading } = useDailySnapshots();
   const { data: live, isLoading: liveLoading, isError: liveError } = useEIAPrices();
 
-  // Merge: live EIA prices override hardcoded when available
+  const allData = snapshots || [];
+  const prewar = allData.find((d) => d.war_day === -1) || allData[0];
+  const hardcodedLatest = allData[allData.length - 1];
+
+  if (!prewar || !hardcodedLatest) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading dashboard…</div>
+      </div>
+    );
+  }
+
+  // Merge: live EIA prices override when available
   const latest = {
-    ...hardcoded,
-    brent_usd_barrel: live?.brent_usd_barrel ?? hardcoded.brent_usd_barrel,
-    wti_usd_barrel: live?.wti_usd_barrel ?? hardcoded.wti_usd_barrel,
-    dubai_usd_barrel: live?.dubai_usd_barrel ?? hardcoded.dubai_usd_barrel,
-    us_gas_avg_gallon: live?.us_gas_avg_gallon ?? hardcoded.us_gas_avg_gallon,
-    us_diesel_avg_gallon: live?.us_diesel_avg_gallon ?? hardcoded.us_diesel_avg_gallon,
+    ...hardcodedLatest,
+    brent_usd_barrel: live?.brent_usd_barrel ?? hardcodedLatest.brent_usd_barrel,
+    wti_usd_barrel: live?.wti_usd_barrel ?? hardcodedLatest.wti_usd_barrel,
+    dubai_usd_barrel: live?.dubai_usd_barrel ?? hardcodedLatest.dubai_usd_barrel,
+    us_gas_avg_gallon: live?.us_gas_avg_gallon ?? hardcodedLatest.us_gas_avg_gallon,
+    us_diesel_avg_gallon: live?.us_diesel_avg_gallon ?? hardcodedLatest.us_diesel_avg_gallon,
   };
 
   const isLive = !!live && !liveError;
@@ -119,7 +129,7 @@ const Index = () => {
           />
           <KpiCard
             title="Days at War"
-             value={`${latest.war_day}`}
+            value={`${latest.war_day}`}
             change="Ongoing conflict"
             changeType="neutral"
             subtitle={`Since Feb 28, 2026`}
@@ -156,7 +166,7 @@ const Index = () => {
         </div>
 
         {/* Timeline */}
-         <EventsTimeline />
+        <EventsTimeline />
 
         {/* Footer */}
         <motion.footer
@@ -165,7 +175,7 @@ const Index = () => {
           transition={{ delay: 1 }}
           className="border-t border-border py-4 text-center text-xs text-muted-foreground"
         >
-          Oil prices: U.S. EIA (official) • Events: AAA, CNBC, Fortune, NPR, CBS, Reuters, Euronews, IEA — verified as of April 2, 2026
+          Oil prices: U.S. EIA (official) • Events: AI-generated + AAA, CNBC, Fortune, NPR, CBS, Reuters, Euronews, IEA — auto-updated
         </motion.footer>
       </main>
     </div>
