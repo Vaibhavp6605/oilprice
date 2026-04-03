@@ -14,7 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_snapshots: {
+        Row: {
+          brent_usd: number | null
+          created_at: string
+          diesel_avg: number | null
+          dubai_usd: number | null
+          gas_avg: number | null
+          hormuz_ships: number | null
+          id: string
+          iran_production: number | null
+          key_event: string | null
+          phase: string | null
+          snapshot_date: string
+          updated_at: string
+          war_day: number
+          wti_usd: number | null
+        }
+        Insert: {
+          brent_usd?: number | null
+          created_at?: string
+          diesel_avg?: number | null
+          dubai_usd?: number | null
+          gas_avg?: number | null
+          hormuz_ships?: number | null
+          id?: string
+          iran_production?: number | null
+          key_event?: string | null
+          phase?: string | null
+          snapshot_date: string
+          updated_at?: string
+          war_day: number
+          wti_usd?: number | null
+        }
+        Update: {
+          brent_usd?: number | null
+          created_at?: string
+          diesel_avg?: number | null
+          dubai_usd?: number | null
+          gas_avg?: number | null
+          hormuz_ships?: number | null
+          id?: string
+          iran_production?: number | null
+          key_event?: string | null
+          phase?: string | null
+          snapshot_date?: string
+          updated_at?: string
+          war_day?: number
+          wti_usd?: number | null
+        }
+        Relationships: []
+      }
+      oil_events: {
+        Row: {
+          brent_price_that_day: number | null
+          category: string
+          created_at: string
+          description: string
+          event_date: string
+          event_title: string
+          id: string
+          source: string | null
+          war_day: number
+        }
+        Insert: {
+          brent_price_that_day?: number | null
+          category?: string
+          created_at?: string
+          description: string
+          event_date: string
+          event_title: string
+          id?: string
+          source?: string | null
+          war_day: number
+        }
+        Update: {
+          brent_price_that_day?: number | null
+          category?: string
+          created_at?: string
+          description?: string
+          event_date?: string
+          event_title?: string
+          id?: string
+          source?: string | null
+          war_day?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
