@@ -9,8 +9,9 @@ export function useDailySnapshots() {
 
   // Subscribe to realtime updates
   useEffect(() => {
+    const channelName = `daily_snapshots_rt_${Date.now()}`;
     const channel = supabase
-      .channel("daily_snapshots_realtime")
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "daily_snapshots" },
