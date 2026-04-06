@@ -29,7 +29,8 @@ export interface LatestPrices {
 
 function getLatest(arr: EIADataPoint[]): { value: number | null; date: string | null } {
   if (!arr || arr.length === 0) return { value: null, date: null };
-  return { value: arr[0].value, date: arr[0].period };
+  const v = arr[0].value;
+  return { value: typeof v === "string" ? parseFloat(v) : (typeof v === "number" ? v : null), date: arr[0].period };
 }
 
 export function useEIAPrices() {
