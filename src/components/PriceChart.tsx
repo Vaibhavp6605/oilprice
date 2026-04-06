@@ -118,7 +118,9 @@ const CombinedCrudeChart = () => {
                   <div className="mt-1 space-y-1">
                     {benchmarks.map((b) => (
                       <p key={b.key} className="font-mono text-sm font-bold" style={{ color: b.color }}>
-                        {b.label}: ${(d[b.key] as number)?.toFixed(2)}
+                        {b.label}: ${Number(d[b.key] ?? 0).toFixed(2)}
+                      </p>
+                    ))}
                       </p>
                     ))}
                   </div>
