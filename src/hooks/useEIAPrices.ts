@@ -58,7 +58,7 @@ export function useEIAPrices() {
         fetchedAt: raw.fetchedAt,
       };
     },
-    staleTime: 10 * 60 * 1000, // 10 min
-    refetchInterval: 15 * 60 * 1000, // 15 min
+    staleTime: 5 * 60 * 1000, // 5 min
+    refetchInterval: 10 * 60 * 1000, // 10 min
   });
 }
