@@ -14,7 +14,7 @@ interface KpiCardProps {
 
 const KpiCard = ({ title, value, change, changeType = "neutral", subtitle, glowClass = "", delay = 0, animateValue }: KpiCardProps) => {
   const Icon = changeType === "up" ? TrendingUp : changeType === "down" ? TrendingDown : Minus;
-  const changeColor = changeType === "up" ? "text-crisis-red" : changeType === "down" ? "text-crisis-green" : "text-muted-foreground";
+  const changeColor = changeType === "up" ? "text-crisis-red" : changeType === "down" ? "text-crisis-red" : "text-muted-foreground";
 
   return (
     <motion.div
