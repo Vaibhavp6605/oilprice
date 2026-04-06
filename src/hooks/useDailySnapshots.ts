@@ -1,16 +1,19 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { DailyData } from "@/lib/oilData";
 import { dailyData as hardcodedData } from "@/lib/oilData";
 
 export function useDailySnapshots() {
   const queryClient = useQueryClient();
 
-  // Subscribe to realtime updates
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
   useEffect(() => {
+    if (channelRef.current) return;
+
     const channel = supabase
-      .channel("daily_snapshots_rt")
+      .channel(`daily_snapshots_rt_${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "daily_snapshots" },
@@ -20,8 +23,13 @@ export function useDailySnapshots() {
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
-      supabase.removeChannel(channel);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
   }, [queryClient]);
 
