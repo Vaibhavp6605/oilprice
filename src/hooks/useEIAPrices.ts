@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface EIADataPoint {
   period: string;
-  value: number;
+  value: number | string;
   "series-description"?: string;
 }
 
@@ -29,7 +29,8 @@ export interface LatestPrices {
 
 function getLatest(arr: EIADataPoint[]): { value: number | null; date: string | null } {
   if (!arr || arr.length === 0) return { value: null, date: null };
-  return { value: arr[0].value, date: arr[0].period };
+  const v = arr[0].value;
+  return { value: typeof v === "string" ? parseFloat(v) : (typeof v === "number" ? v : null), date: arr[0].period };
 }
 
 export function useEIAPrices() {
@@ -57,7 +58,7 @@ export function useEIAPrices() {
         fetchedAt: raw.fetchedAt,
       };
     },
-    staleTime: 10 * 60 * 1000, // 10 min
-    refetchInterval: 15 * 60 * 1000, // 15 min
+    staleTime: 5 * 60 * 1000, // 5 min
+    refetchInterval: 10 * 60 * 1000, // 10 min
   });
 }
