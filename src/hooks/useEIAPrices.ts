@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface EIADataPoint {
   period: string;
-  value: number;
+  value: number | string;
   "series-description"?: string;
 }
 
