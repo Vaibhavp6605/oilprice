@@ -121,8 +121,6 @@ const CombinedCrudeChart = () => {
                         {b.label}: ${Number(d[b.key] ?? 0).toFixed(2)}
                       </p>
                     ))}
-                      </p>
-                    ))}
                   </div>
                   {d.event && (
                     <p className="mt-2 border-t border-border pt-2 text-[10px] leading-relaxed text-muted-foreground">
