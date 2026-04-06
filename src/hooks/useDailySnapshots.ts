@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { DailyData } from "@/lib/oilData";
 import { dailyData as hardcodedData } from "@/lib/oilData";
 
