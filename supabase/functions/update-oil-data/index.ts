@@ -180,7 +180,7 @@ The event should be plausible and reference real geopolitical actors (US, Israel
         snapshot_date: todayStr,
         brent_usd: brentPrice,
         wti_usd: wtiPrice,
-        dubai_usd: latestSnapshot?.dubai_usd, // keep last known
+        dubai_usd: brentPrice ? brentPrice + 2.0 : latestSnapshot?.dubai_usd, // Dubai typically trades at Brent + ~$2 premium
         gas_avg: gasPrice,
         diesel_avg: dieselPrice,
         hormuz_ships: update.hormuz_ships,

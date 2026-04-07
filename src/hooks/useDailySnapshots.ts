@@ -48,6 +48,7 @@ export function useDailySnapshots() {
       // Pre-war reference for percentage calculations
       const prewarBrent = 73.1;
       const prewarGas = 2.98;
+      const prewarHormuz = 60; // realistic tanker count per day
 
       const converted: DailyData[] = dbSnapshots.map((s) => ({
         date: s.snapshot_date,
