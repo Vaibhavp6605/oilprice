@@ -5,6 +5,7 @@ import PriceChart from "@/components/PriceChart";
 import EventsTimeline from "@/components/EventsTimeline";
 import PredictionPanel from "@/components/PredictionPanel";
 import HormuzChart from "@/components/HormuzChart";
+import HormuzMap from "@/components/HormuzMap";
 import { useEIAPrices } from "@/hooks/useEIAPrices";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
 
@@ -159,6 +160,9 @@ const Index = () => {
 
         {/* Charts Row */}
         <PriceChart />
+
+        {/* Hormuz Map */}
+        <HormuzMap />
 
         <div className="grid gap-6 lg:grid-cols-2">
           <HormuzChart />
