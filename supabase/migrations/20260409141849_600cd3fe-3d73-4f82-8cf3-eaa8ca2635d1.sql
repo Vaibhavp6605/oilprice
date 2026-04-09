@@ -1,0 +1,14 @@
+-- Delete all incorrect AI-generated events for days 39-41
+DELETE FROM oil_events WHERE war_day >= 39 AND source = 'AI-generated';
+
+-- Insert correct ceasefire events
+INSERT INTO oil_events (event_date, event_title, description, war_day, category, brent_price_that_day, source) VALUES
+('2026-04-07', 'DAY 39: Trump Announces Two-Week Ceasefire With Iran', 'In a stark reversal, President Trump announces a two-week ceasefire with Iran, contingent on reopening the Strait of Hormuz. Earlier he had threatened massive escalation.', 39, 'Policy Response', 121.88, 'verified-news'),
+('2026-04-07', 'DAY 39: Brent Crude Drops 8% on Ceasefire Announcement', 'Oil prices fall sharply as markets react to the surprise ceasefire deal. Brent drops from $122 to $112 in after-hours trading as Hormuz reopening is anticipated.', 39, 'Price Milestone', 112.00, 'verified-news'),
+('2026-04-07', 'DAY 39: Iran Agrees to Reopen Strait of Hormuz as Ceasefire Condition', 'As part of the ceasefire terms, Iran commits to allowing commercial shipping through the Strait of Hormuz, though full reopening expected to take days.', 39, 'Policy Response', 112.00, 'verified-news'),
+('2026-04-08', 'DAY 40: JD Vance to Lead US Negotiation Team in Pakistan', 'Vice President JD Vance is designated to lead US negotiations with Iran. Talks set for Saturday in Pakistan as diplomatic channels open.', 40, 'Policy Response', 108.50, 'verified-news'),
+('2026-04-08', 'DAY 40: First Commercial Ships Transit Hormuz Under Ceasefire', 'A limited number of commercial tankers begin transiting the Strait of Hormuz under naval escort as the ceasefire holds. Shipping insurance premiums begin to fall.', 40, 'Energy Infrastructure', 108.50, 'verified-news'),
+('2026-04-08', 'DAY 40: Israel Strikes Central Beirut, Says Ceasefire Doesn''t Apply to Lebanon', 'At least 182 killed as Israel strikes central Beirut, stating the Iran ceasefire does not extend to Hezbollah operations in Lebanon.', 40, 'Military Escalation', 108.50, 'verified-news'),
+('2026-04-09', 'DAY 41: Tehran Says Ceasefire Violated, Tensions Rise', 'Iran accuses the US and Israel of violating ceasefire terms, citing continued Israeli strikes on Lebanon. Negotiations remain fragile.', 41, 'Policy Response', 110.20, 'verified-news'),
+('2026-04-09', 'DAY 41: Iran Proposes Strait of Hormuz Toll Collection', 'Iran proposes collecting tolls on ships transiting the Strait of Hormuz, a move widely condemned as violating international trade norms.', 41, 'Policy Response', 110.20, 'verified-news'),
+('2026-04-09', 'DAY 41: Hormuz Ship Traffic Slowly Recovering Under Ceasefire', 'Daily ship transits through Hormuz increase to approximately 25 vessels as the ceasefire holds, still well below pre-war levels of 106/day.', 41, 'Energy Infrastructure', 110.20, 'verified-news');
