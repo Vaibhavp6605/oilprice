@@ -91,18 +91,20 @@ Deno.serve(async (req) => {
 
     const prompt = `You are tracking the 2026 Iran War that started Feb 28, 2026. Today is ${todayStr}, War Day ${currentWarDay}.
 
-Current Brent crude: $${brentPrice}/barrel. Latest known Hormuz ship traffic: ${latestSnapshot?.hormuz_ships || 5} ships/day. Iran production: ${latestSnapshot?.iran_production || 0.1} mbpd.
+IMPORTANT CONTEXT: On April 7, 2026 (Day 39), President Trump announced a two-week ceasefire with Iran, contingent on reopening the Strait of Hormuz. JD Vance is leading negotiations in Pakistan. Iran has accused the US/Israel of violating the ceasefire due to continued Israeli strikes on Lebanon. Iran has also proposed collecting tolls on Strait of Hormuz shipping. The ceasefire is fragile but holding. Hormuz traffic is slowly recovering.
+
+Current Brent crude: $${brentPrice}/barrel. Latest known Hormuz ship traffic: ${latestSnapshot?.hormuz_ships || 25} ships/day (recovering from blockade low of 2/day). Iran production: ${latestSnapshot?.iran_production || 0.08} mbpd.
 
 Recent events:
 ${recentEventsSummary}
 
-Based on the ongoing conflict trajectory, generate:
-1. ONE new realistic event for today (war day ${currentWarDay}) that continues the narrative
-2. An estimated Strait of Hormuz daily ship count (realistic given the blockade, between 2-15)
-3. An estimated Iran production level in mbpd (between 0.0-0.5 given destruction of infrastructure)
-4. A conflict phase name (e.g. "Week ${Math.ceil(currentWarDay / 7)} Escalation")
+Based on the CEASEFIRE context, generate:
+1. ONE new realistic event for today (war day ${currentWarDay}) that continues the ceasefire/negotiation narrative
+2. An estimated Strait of Hormuz daily ship count (recovering: between 15-50 during ceasefire)
+3. An estimated Iran production level in mbpd (slowly recovering: between 0.05-0.3)
+4. A conflict phase name (e.g. "Ceasefire Day ${currentWarDay - 38}")
 
-The event should be plausible and reference real geopolitical actors (US, Israel, Iran, IRGC, Houthis, Gulf states, China, Russia, UN, NATO). Vary categories between: Military Escalation, Energy Infrastructure, Policy Response, Price Milestone.`;
+The event should be plausible and reference real geopolitical actors (US, Israel, Iran, IRGC, Houthis, Gulf states, China, Russia, UN, NATO). Focus on ceasefire dynamics, negotiations, violations, humanitarian aid, or economic recovery. Vary categories between: Military Escalation, Energy Infrastructure, Policy Response, Price Milestone.`;
 
     const aiResponse = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
