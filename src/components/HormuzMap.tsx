@@ -38,27 +38,28 @@ const HormuzMap = () => {
       transition={{ duration: 0.6, delay: 0.5 }}
       className="rounded-lg border border-border bg-card overflow-hidden"
     >
-      <div className="p-4 border-b border-border flex items-center justify-between">
+      <div className="p-3 sm:p-4 border-b border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div>
-          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <Ship className="h-5 w-5 text-crisis-blue" />
-            Strait of Hormuz — Live Blockade Map
+          <h3 className="text-sm sm:text-lg font-semibold text-foreground flex items-center gap-2">
+            <Ship className="h-4 w-4 sm:h-5 sm:w-5 text-crisis-blue" />
+            <span className="hidden sm:inline">Strait of Hormuz — Live Blockade Map</span>
+            <span className="sm:hidden">Hormuz Blockade Map</span>
           </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Satellite view • Ship traffic overlay • Updated hourly
+          <p className="text-[9px] sm:text-xs text-muted-foreground mt-0.5">
+            Satellite view • Ship traffic overlay
           </p>
         </div>
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${
+        <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold ${
           isBlocked
             ? "bg-crisis-red/20 text-crisis-red border border-crisis-red/30"
             : "bg-crisis-green/20 text-crisis-green border border-crisis-green/30"
         }`}>
           <AlertTriangle className="h-3 w-3" />
-          {isBlocked ? "STRAIT BLOCKED" : "LIMITED TRANSIT"}
+          {isBlocked ? "BLOCKED" : "LIMITED TRANSIT"}
         </div>
       </div>
 
-      <div className="relative aspect-[16/9] max-h-[420px] overflow-hidden">
+      <div className="relative aspect-[4/3] sm:aspect-[16/9] max-h-[420px] overflow-hidden">
         {/* Satellite background */}
         <img
           src={hormuzSatellite}
