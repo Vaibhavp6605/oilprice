@@ -6,6 +6,7 @@ import EventsTimeline from "@/components/EventsTimeline";
 import PredictionPanel from "@/components/PredictionPanel";
 import HormuzChart from "@/components/HormuzChart";
 import HormuzMap from "@/components/HormuzMap";
+import RecentEvents from "@/components/RecentEvents";
 import { useEIAPrices } from "@/hooks/useEIAPrices";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
 
@@ -157,6 +158,9 @@ const Index = () => {
             animateValue
           />
         </div>
+
+        {/* Recent Events */}
+        <RecentEvents />
 
         {/* Charts Row */}
         <PriceChart />
