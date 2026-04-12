@@ -10,8 +10,8 @@ export function useOilEvents() {
 
   // Subscribe to realtime updates
   useEffect(() => {
-    const channel = supabase
-      .channel("oil_events_realtime")
+    const channel = supabase.channel("oil_events_rt_" + Date.now());
+    channel
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "oil_events" },
