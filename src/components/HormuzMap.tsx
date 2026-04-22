@@ -1,15 +1,26 @@
 import { motion } from "framer-motion";
-import { Ship, AlertTriangle, Anchor } from "lucide-react";
+import { Ship, AlertTriangle, Radio } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
 import hormuzSatellite from "@/assets/hormuz-satellite.jpg";
 
 const HormuzMap = () => {
-  const { data: snapshots } = useDailySnapshots();
+  const { data: snapshots, dataUpdatedAt } = useDailySnapshots();
   const allData = snapshots || [];
   const latest = allData[allData.length - 1];
   const prewar = allData.find((d) => d.war_day === -1) || allData[0];
 
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
   if (!latest || !prewar) return null;
+
+  const secsAgo = Math.max(0, Math.floor((now - dataUpdatedAt) / 1000));
+  const agoLabel =
+    secsAgo < 60 ? `${secsAgo}s ago` : `${Math.floor(secsAgo / 60)}m ${secsAgo % 60}s ago`;
 
   const currentShips = latest.strait_hormuz_daily_ships;
   const prewarShips = prewar.strait_hormuz_daily_ships;
@@ -49,13 +60,20 @@ const HormuzMap = () => {
             Satellite view • Ship traffic overlay
           </p>
         </div>
-        <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold ${
-          isBlocked
-            ? "bg-crisis-red/20 text-crisis-red border border-crisis-red/30"
-            : "bg-crisis-green/20 text-crisis-green border border-crisis-green/30"
-        }`}>
-          <AlertTriangle className="h-3 w-3" />
-          {isBlocked ? "BLOCKED" : "LIMITED TRANSIT"}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-mono bg-crisis-green/10 text-crisis-green border border-crisis-green/30">
+            <Radio className="h-2.5 w-2.5 animate-pulse" />
+            <span>LIVE • {agoLabel}</span>
+            <span className="hidden sm:inline opacity-60">• 5min</span>
+          </div>
+          <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold ${
+            isBlocked
+              ? "bg-crisis-red/20 text-crisis-red border border-crisis-red/30"
+              : "bg-crisis-green/20 text-crisis-green border border-crisis-green/30"
+          }`}>
+            <AlertTriangle className="h-3 w-3" />
+            {isBlocked ? "BLOCKED" : "LIMITED TRANSIT"}
+          </div>
         </div>
       </div>
 

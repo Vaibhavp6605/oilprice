@@ -35,6 +35,9 @@ export function useDailySnapshots() {
 
   return useQuery<DailyData[]>({
     queryKey: ["daily-snapshots"],
+    refetchInterval: 5 * 60 * 1000, // auto-refresh every 5 minutes
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const { data: dbSnapshots, error } = await supabase
         .from("daily_snapshots")
