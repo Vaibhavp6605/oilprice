@@ -1,15 +1,26 @@
 import { motion } from "framer-motion";
-import { Ship, AlertTriangle, Anchor } from "lucide-react";
+import { Ship, AlertTriangle, Radio } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
 import hormuzSatellite from "@/assets/hormuz-satellite.jpg";
 
 const HormuzMap = () => {
-  const { data: snapshots } = useDailySnapshots();
+  const { data: snapshots, dataUpdatedAt } = useDailySnapshots();
   const allData = snapshots || [];
   const latest = allData[allData.length - 1];
   const prewar = allData.find((d) => d.war_day === -1) || allData[0];
 
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
   if (!latest || !prewar) return null;
+
+  const secsAgo = Math.max(0, Math.floor((now - dataUpdatedAt) / 1000));
+  const agoLabel =
+    secsAgo < 60 ? `${secsAgo}s ago` : `${Math.floor(secsAgo / 60)}m ${secsAgo % 60}s ago`;
 
   const currentShips = latest.strait_hormuz_daily_ships;
   const prewarShips = prewar.strait_hormuz_daily_ships;
