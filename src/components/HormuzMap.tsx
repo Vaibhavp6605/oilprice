@@ -143,6 +143,34 @@ const HormuzMap = () => {
           </motion.div>
         ))}
 
+        {/* US Navy warships */}
+        {usWarships.map((ws) => {
+          const isCarrier = ws.type === "Carrier";
+          return (
+            <motion.div
+              key={ws.id}
+              className="absolute group cursor-pointer"
+              style={{ left: `${ws.x}%`, top: `${ws.y}%` }}
+              animate={{ x: [0, 4, 0], y: [0, -2, 0] }}
+              transition={{ duration: 6 + Math.random() * 2, repeat: Infinity }}
+            >
+              <motion.div
+                className="absolute inset-0 -m-1 rounded-sm border border-crisis-blue/60"
+                animate={{ scale: [1, 1.8, 1], opacity: [0.7, 0, 0.7] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+              />
+              <div
+                className={`${
+                  isCarrier ? "h-3 w-3" : "h-2 w-2"
+                } bg-crisis-blue border border-white/80 rotate-45 shadow-[0_0_10px_2px_hsl(217,91%,60%)]`}
+              />
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-black/90 border border-crisis-blue/40 rounded px-1.5 py-0.5 text-[9px] font-mono text-white z-10">
+                🇺🇸 {ws.name} • {ws.type}
+              </div>
+            </motion.div>
+          );
+        })}
+
         {/* Labels */}
         <div className="absolute top-[15%] left-[20%] text-[9px] sm:text-[11px] font-bold text-white/80 tracking-wider">
           IRAN
