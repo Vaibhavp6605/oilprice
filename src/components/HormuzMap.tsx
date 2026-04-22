@@ -86,7 +86,7 @@ const HormuzMap = () => {
         </div>
       </div>
 
-      <div className="relative aspect-[4/3] sm:aspect-[16/9] max-h-[420px] overflow-hidden">
+      <div className="relative aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-[70vh] lg:max-h-[800px] overflow-hidden">
         {/* Satellite background */}
         <img
           src={hormuzSatellite}
