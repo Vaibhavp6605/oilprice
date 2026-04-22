@@ -42,6 +42,15 @@ const HormuzMap = () => {
     active: false,
   }));
 
+  // US Navy warship positions (CENTCOM 5th Fleet — Carl Vinson CSG + escorts)
+  const usWarships = [
+    { id: "cvn-70", name: "USS Carl Vinson", type: "Carrier", x: 78, y: 55 },
+    { id: "ddg-103", name: "USS Truxtun", type: "Destroyer", x: 72, y: 48 },
+    { id: "ddg-110", name: "USS W.P. Lawrence", type: "Destroyer", x: 84, y: 62 },
+    { id: "lhd-5", name: "USS Bataan", type: "Amphibious", x: 88, y: 45 },
+    { id: "cg-72", name: "USS Vella Gulf", type: "Cruiser", x: 68, y: 65 },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
