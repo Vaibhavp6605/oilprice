@@ -215,9 +215,13 @@ const HormuzMap = () => {
             <div className="h-2 w-2 rounded-full bg-crisis-amber/60 border border-crisis-amber/40" />
             <span className="text-[10px] text-white/70">Anchored / waiting</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mb-1">
             <div className="h-2 w-2 rounded-full bg-crisis-red/50 border border-dashed border-crisis-red/60" />
             <span className="text-[10px] text-white/70">Blockade zone</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 bg-crisis-blue border border-white/80 rotate-45 shadow-[0_0_4px_1px_hsl(217,91%,60%)]" />
+            <span className="text-[10px] text-white/70">🇺🇸 US Navy warship</span>
           </div>
         </div>
       </div>
