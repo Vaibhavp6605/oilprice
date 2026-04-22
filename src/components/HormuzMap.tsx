@@ -12,15 +12,14 @@ const HormuzMap = () => {
 
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
+    const t = setInterval(() => setNow(Date.now()), 30000);
     return () => clearInterval(t);
   }, []);
 
   if (!latest || !prewar) return null;
 
-  const secsAgo = Math.max(0, Math.floor((now - dataUpdatedAt) / 1000));
-  const agoLabel =
-    secsAgo < 60 ? `${secsAgo}s ago` : `${Math.floor(secsAgo / 60)}m ${secsAgo % 60}s ago`;
+  const minsAgo = Math.max(0, Math.floor((now - dataUpdatedAt) / 60000));
+  const agoLabel = minsAgo < 1 ? "just now" : `${minsAgo}m ago`;
 
   const currentShips = latest.strait_hormuz_daily_ships;
   const prewarShips = prewar.strait_hormuz_daily_ships;
