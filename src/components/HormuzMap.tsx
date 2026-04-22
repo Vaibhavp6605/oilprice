@@ -42,6 +42,15 @@ const HormuzMap = () => {
     active: false,
   }));
 
+  // US Navy warship positions (CENTCOM 5th Fleet — Carl Vinson CSG + escorts)
+  const usWarships = [
+    { id: "cvn-70", name: "USS Carl Vinson", type: "Carrier", x: 78, y: 55 },
+    { id: "ddg-103", name: "USS Truxtun", type: "Destroyer", x: 72, y: 48 },
+    { id: "ddg-110", name: "USS W.P. Lawrence", type: "Destroyer", x: 84, y: 62 },
+    { id: "lhd-5", name: "USS Bataan", type: "Amphibious", x: 88, y: 45 },
+    { id: "cg-72", name: "USS Vella Gulf", type: "Cruiser", x: 68, y: 65 },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -134,6 +143,34 @@ const HormuzMap = () => {
           </motion.div>
         ))}
 
+        {/* US Navy warships */}
+        {usWarships.map((ws) => {
+          const isCarrier = ws.type === "Carrier";
+          return (
+            <motion.div
+              key={ws.id}
+              className="absolute group cursor-pointer"
+              style={{ left: `${ws.x}%`, top: `${ws.y}%` }}
+              animate={{ x: [0, 4, 0], y: [0, -2, 0] }}
+              transition={{ duration: 6 + Math.random() * 2, repeat: Infinity }}
+            >
+              <motion.div
+                className="absolute inset-0 -m-1 rounded-sm border border-crisis-blue/60"
+                animate={{ scale: [1, 1.8, 1], opacity: [0.7, 0, 0.7] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+              />
+              <div
+                className={`${
+                  isCarrier ? "h-3 w-3" : "h-2 w-2"
+                } bg-crisis-blue border border-white/80 rotate-45 shadow-[0_0_10px_2px_hsl(217,91%,60%)]`}
+              />
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-black/90 border border-crisis-blue/40 rounded px-1.5 py-0.5 text-[9px] font-mono text-white z-10">
+                🇺🇸 {ws.name} • {ws.type}
+              </div>
+            </motion.div>
+          );
+        })}
+
         {/* Labels */}
         <div className="absolute top-[15%] left-[20%] text-[9px] sm:text-[11px] font-bold text-white/80 tracking-wider">
           IRAN
@@ -178,9 +215,13 @@ const HormuzMap = () => {
             <div className="h-2 w-2 rounded-full bg-crisis-amber/60 border border-crisis-amber/40" />
             <span className="text-[10px] text-white/70">Anchored / waiting</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mb-1">
             <div className="h-2 w-2 rounded-full bg-crisis-red/50 border border-dashed border-crisis-red/60" />
             <span className="text-[10px] text-white/70">Blockade zone</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 bg-crisis-blue border border-white/80 rotate-45 shadow-[0_0_4px_1px_hsl(217,91%,60%)]" />
+            <span className="text-[10px] text-white/70">🇺🇸 US Navy warship</span>
           </div>
         </div>
       </div>
