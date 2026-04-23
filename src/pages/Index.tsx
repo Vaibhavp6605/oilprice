@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import { AlertTriangle, Radio, Wifi, WifiOff } from "lucide-react";
+import { AlertTriangle, Radio, Wifi, WifiOff, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import KpiCard from "@/components/KpiCard";
 import PriceChart from "@/components/PriceChart";
 import EventsTimeline from "@/components/EventsTimeline";
@@ -11,6 +13,7 @@ import { useEIAPrices } from "@/hooks/useEIAPrices";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
 
 const Index = () => {
+  const { user, signOut } = useAuth();
   const { data: snapshots, isLoading: snapshotsLoading } = useDailySnapshots();
   const { data: live, isLoading: liveLoading, isError: liveError } = useEIAPrices();
 
@@ -71,6 +74,16 @@ const Index = () => {
               <Radio className="h-3 w-3 animate-pulse-glow text-crisis-red" />
               <span className="font-mono text-xs text-crisis-red">LIVE — Day {latest.war_day}</span>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={signOut}
+              className="h-7 px-2 text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground"
+              title={user?.email || ""}
+            >
+              <LogOut className="h-3 w-3 mr-1" />
+              Sign out
+            </Button>
           </div>
         </div>
       </header>
