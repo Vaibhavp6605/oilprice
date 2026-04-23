@@ -26,17 +26,17 @@ const Index = () => {
     );
   }
 
-  // Merge: live EIA prices override when available
+  // Use scenario DB as source of truth; EIA only fills missing values
   const latest = {
     ...hardcodedLatest,
-    brent_usd_barrel: live?.brent_usd_barrel ?? hardcodedLatest.brent_usd_barrel,
-    wti_usd_barrel: live?.wti_usd_barrel ?? hardcodedLatest.wti_usd_barrel,
-    dubai_usd_barrel: live?.dubai_usd_barrel ?? hardcodedLatest.dubai_usd_barrel,
-    us_gas_avg_gallon: live?.us_gas_avg_gallon ?? hardcodedLatest.us_gas_avg_gallon,
-    us_diesel_avg_gallon: live?.us_diesel_avg_gallon ?? hardcodedLatest.us_diesel_avg_gallon,
+    brent_usd_barrel: hardcodedLatest.brent_usd_barrel || live?.brent_usd_barrel || 0,
+    wti_usd_barrel: hardcodedLatest.wti_usd_barrel || live?.wti_usd_barrel || 0,
+    dubai_usd_barrel: hardcodedLatest.dubai_usd_barrel || live?.dubai_usd_barrel || 0,
+    us_gas_avg_gallon: hardcodedLatest.us_gas_avg_gallon || live?.us_gas_avg_gallon || 0,
+    us_diesel_avg_gallon: hardcodedLatest.us_diesel_avg_gallon || live?.us_diesel_avg_gallon || 0,
   };
 
-  const isLive = !!live && !liveError;
+  const isLive = !!snapshots?.length;
 
   return (
     <div className="min-h-screen bg-background grid-pattern">
