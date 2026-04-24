@@ -69,10 +69,13 @@ const HormuzMap = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-mono bg-crisis-green/10 text-crisis-green border border-crisis-green/30">
+          <div
+            className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-mono bg-crisis-amber/10 text-crisis-amber border border-crisis-amber/30"
+            title="Ship counts are AI-estimated hourly based on news of the ceasefire. There is no free public real-time AIS feed for the Strait of Hormuz."
+          >
             <Radio className="h-2.5 w-2.5 animate-pulse" />
-            <span>LIVE • {agoLabel}</span>
-            <span className="hidden sm:inline opacity-60">• 5min</span>
+            <span>AI ESTIMATE • {agoLabel}</span>
+            <span className="hidden sm:inline opacity-60">• hourly</span>
           </div>
           <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold ${
             isBlocked
@@ -226,7 +229,7 @@ const HormuzMap = () => {
       </div>
 
       <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-card border-t border-border text-[9px] sm:text-[10px] text-muted-foreground">
-        Sources: Statista, Windward, BBC Verify, HormuzTracker • Baseline: {prewarShips} ships/day
+        ⚠ Ship counts & warship positions are <strong>AI estimates</strong> refreshed hourly (grounded in news from Reuters, BBC, AAA, Kpler reports). Real-time AIS tracking requires a paid feed (MarineTraffic, Windward, Spire). Pre-war baseline: {prewarShips} ships/day (Statista verified).
       </div>
     </motion.div>
   );
