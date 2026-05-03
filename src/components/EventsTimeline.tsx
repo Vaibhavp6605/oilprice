@@ -1,7 +1,9 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useOilEvents } from "@/hooks/useOilEvents";
-import { Flame, Shield, DollarSign, Crosshair, Zap } from "lucide-react";
+import { Flame, Shield, DollarSign, Crosshair, Zap, ChevronDown, ChevronUp } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 
 const categoryIcons: Record<string, any> = {
   "Conflict Start": Flame,
@@ -90,52 +92,124 @@ const EventsTimeline = ({ onActiveEvent }: EventsTimelineProps) => {
     );
   }
 
+  return <EventsTimelineInner events={events || []} setItemRef={setItemRef} containerRef={containerRef} />;
+};
+
+const EventsTimelineInner = ({
+  events,
+  setItemRef,
+  containerRef,
+}: {
+  events: any[];
+  setItemRef: (id: number, el: HTMLDivElement | null) => void;
+  containerRef: React.RefObject<HTMLDivElement>;
+}) => {
+  const [selectedDay, setSelectedDay] = useState<number | "all">("all");
+  const [expanded, setExpanded] = useState(false);
+
+  const days = useMemo(() => {
+    const set = new Set(events.map((e) => e.warDay));
+    return Array.from(set).sort((a, b) => a - b);
+  }, [events]);
+
+  const filtered = useMemo(() => {
+    if (selectedDay === "all") return events;
+    return events.filter((e) => e.warDay === selectedDay);
+  }, [events, selectedDay]);
+
   return (
     <motion.div
       ref={containerRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.5 }}
-      className="rounded-lg border border-border bg-card p-6"
+      className="rounded-lg border border-border bg-card p-4"
     >
-      <h3 className="text-lg font-semibold text-foreground">Key Events Timeline</h3>
-      <p className="mb-4 text-xs text-muted-foreground">Scroll through events to update KPIs above ↑</p>
-
-      <div className="relative space-y-0">
-        <div className="absolute left-4 top-0 h-full w-px bg-border" />
-        {events?.map((event, i) => {
-          const Icon = categoryIcons[event.category] || Flame;
-          const colorClass = categoryColors[event.category] || "border-muted-foreground bg-muted text-muted-foreground";
-          return (
-            <motion.div
-              key={event.id}
-              ref={(el) => setItemRef(event.id, el)}
-              data-warday={event.warDay}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 * i }}
-              className="relative flex gap-4 py-3 pl-10"
-            >
-              <div className={`absolute left-2 top-4 flex h-5 w-5 items-center justify-center rounded-full border ${colorClass}`}>
-                <Icon className="h-2.5 w-2.5" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-muted-foreground">Day {event.warDay}</span>
-                  <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${colorClass}`}>
-                    {event.category}
-                  </span>
-                  <span className="ml-auto font-mono text-xs text-muted-foreground">
-                    ${event.brentPriceThatDay}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm font-medium text-foreground">{event.eventTitle}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">{event.description}</p>
-              </div>
-            </motion.div>
-          );
-        })}
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">Key Events Timeline</h3>
+          <p className="text-[10px] text-muted-foreground">
+            {filtered.length} event{filtered.length !== 1 ? "s" : ""}
+            {selectedDay !== "all" ? ` on Day ${selectedDay}` : " — filter by day below"}
+          </p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setExpanded((v) => !v)}
+          className="h-7 px-2 text-[10px] font-mono uppercase tracking-wider"
+        >
+          {expanded ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
+          {expanded ? "Collapse" : "Expand"}
+        </Button>
       </div>
+
+      {/* Day filter chips */}
+      <div className="mb-3 -mx-1 overflow-x-auto overflow-y-hidden">
+        <div className="flex gap-1.5 px-1 pb-2 w-max">
+          <button
+            onClick={() => setSelectedDay("all")}
+            className={`shrink-0 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors ${
+              selectedDay === "all"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-background text-muted-foreground hover:border-primary/50"
+            }`}
+          >
+            All ({events.length})
+          </button>
+          {days.map((d) => (
+            <button
+              key={d}
+              onClick={() => setSelectedDay(d)}
+              className={`shrink-0 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors ${
+                selectedDay === d
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border bg-background text-muted-foreground hover:border-primary/50"
+              }`}
+            >
+              Day {d}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <ScrollArea className={expanded ? "h-[600px]" : "h-[280px]"}>
+        <div className="relative space-y-0 pr-3">
+          <div className="absolute left-4 top-0 h-full w-px bg-border" />
+          {filtered.map((event, i) => {
+            const Icon = categoryIcons[event.category] || Flame;
+            const colorClass = categoryColors[event.category] || "border-muted-foreground bg-muted text-muted-foreground";
+            return (
+              <motion.div
+                key={event.id}
+                ref={(el) => setItemRef(event.id, el)}
+                data-warday={event.warDay}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: Math.min(0.03 * i, 0.4) }}
+                className="relative flex gap-3 py-2 pl-10"
+              >
+                <div className={`absolute left-2 top-3 flex h-5 w-5 items-center justify-center rounded-full border ${colorClass}`}>
+                  <Icon className="h-2.5 w-2.5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-[10px] text-muted-foreground">Day {event.warDay}</span>
+                    <span className={`rounded px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider ${colorClass}`}>
+                      {event.category}
+                    </span>
+                    <span className="ml-auto font-mono text-[10px] text-muted-foreground">
+                      ${event.brentPriceThatDay}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs font-medium text-foreground">{event.eventTitle}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed line-clamp-2">{event.description}</p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </ScrollArea>
     </motion.div>
   );
 };
