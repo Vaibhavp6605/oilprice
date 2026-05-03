@@ -145,8 +145,8 @@ const EventsTimelineInner = ({
       </div>
 
       {/* Day filter chips */}
-      <ScrollArea className="mb-3 w-full whitespace-nowrap">
-        <div className="flex gap-1.5 pb-2">
+      <div className="mb-3 -mx-1 overflow-x-auto overflow-y-hidden">
+        <div className="flex gap-1.5 px-1 pb-2 w-max">
           <button
             onClick={() => setSelectedDay("all")}
             className={`shrink-0 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors ${
@@ -171,7 +171,7 @@ const EventsTimelineInner = ({
             </button>
           ))}
         </div>
-      </ScrollArea>
+      </div>
 
       <ScrollArea className={expanded ? "h-[600px]" : "h-[280px]"}>
         <div className="relative space-y-0 pr-3">
