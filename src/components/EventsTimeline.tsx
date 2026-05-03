@@ -1,7 +1,9 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useOilEvents } from "@/hooks/useOilEvents";
-import { Flame, Shield, DollarSign, Crosshair, Zap } from "lucide-react";
+import { Flame, Shield, DollarSign, Crosshair, Zap, ChevronDown, ChevronUp } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 
 const categoryIcons: Record<string, any> = {
   "Conflict Start": Flame,
