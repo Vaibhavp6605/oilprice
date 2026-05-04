@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
       const timeout = setTimeout(() => {
         try { ws.close(); } catch {}
         resolve();
-      }, 15000); // collect for 15s
+      }, 45000); // collect for 45s — enough for hundreds of vessel pings
 
       ws.onopen = () => {
         const sub = {
