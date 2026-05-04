@@ -212,19 +212,22 @@ const HormuzMap = () => {
             </Circle>
           )}
 
-          {/* Active ships along the lane */}
-          {/* Live AIS ships from aisstream.io */}
-          {aisShips.map((s) => (
-            <Marker key={s.mmsi} position={[s.lat, s.lon]} icon={shipIcon}>
-              <Popup>
-                <strong>{s.name || `MMSI ${s.mmsi}`}</strong>
-                <br />
-                {s.sog.toFixed(1)} kn • {s.cog.toFixed(0)}°
-                <br />
-                <em style={{ fontSize: 10 }}>Live AIS · aisstream.io</em>
-              </Popup>
-            </Marker>
-          ))}
+          {/* Live AIS ships from aisstream.io — red inside blockade zone, green elsewhere */}
+          {aisShips.map((s) => {
+            const inBlockade = distKm(BLOCKADE_CENTER, [s.lat, s.lon]) <= BLOCKADE_RADIUS_KM;
+            return (
+              <Marker key={s.mmsi} position={[s.lat, s.lon]} icon={inBlockade ? blockadeShipIcon : shipIcon}>
+                <Popup>
+                  <strong>{s.name || `MMSI ${s.mmsi}`}</strong>
+                  {inBlockade && <> — <span style={{color:"#dc2626"}}>⛔ in blockade zone</span></>}
+                  <br />
+                  {s.sog.toFixed(1)} kn • {s.cog.toFixed(0)}°
+                  <br />
+                  <em style={{ fontSize: 10 }}>Live AIS · aisstream.io</em>
+                </Popup>
+              </Marker>
+            );
+          })}
 
           {/* US Navy warships */}
           {usWarships.map((ws) => (
