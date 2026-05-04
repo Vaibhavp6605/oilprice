@@ -148,7 +148,27 @@ const HormuzMap = () => {
             Real coordinates • Esri / OSM tiles • Pan & zoom
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div
+            className="flex items-center gap-2 px-2 py-1 rounded-full bg-card border border-border"
+            title={refreshMode === "live" ? "Streaming live AIS — refreshes every 20s" : "Cached snapshot — refreshes every 5 min"}
+          >
+            <Label htmlFor="live-toggle" className="text-[9px] sm:text-[10px] font-mono cursor-pointer select-none">
+              {refreshMode === "live" ? (
+                <span className="text-crisis-green flex items-center gap-1">
+                  <Radio className={`h-2.5 w-2.5 ${aisFetching ? "animate-pulse" : ""}`} />
+                  LIVE
+                </span>
+              ) : (
+                <span className="text-muted-foreground">CACHED</span>
+              )}
+            </Label>
+            <Switch
+              id="live-toggle"
+              checked={refreshMode === "live"}
+              onCheckedChange={(c) => setRefreshMode(c ? "live" : "cached")}
+            />
+          </div>
           <div
             className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-mono bg-crisis-amber/10 text-crisis-amber border border-crisis-amber/30"
             title="Map tiles are real. Ship counts and warship positions are AI estimates refreshed hourly — no free public real-time AIS feed exists for the Strait."
