@@ -12,11 +12,17 @@ interface Ship {
   name: string;
   lat: number;
   lon: number;
-  sog: number; // speed over ground
-  cog: number; // course over ground
+  sog: number;
+  cog: number;
   type: number;
   ts: number;
 }
+
+// Persistent cache across warm invocations — accumulates ship positions over time
+const shipCache = new Map<number, Ship>();
+const CACHE_TTL_MS = 15 * 60 * 1000; // drop ships not seen in 15 min
+let lastCollectAt = 0;
+const COLLECT_COOLDOWN_MS = 25_000; // don't reopen WS more than once per 25s
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -29,7 +35,17 @@ Deno.serve(async (req) => {
     });
   }
 
-  const ships = new Map<number, Ship>();
+  // Skip new collection if we just collected — return cached snapshot
+  const now = Date.now();
+  if (now - lastCollectAt < COLLECT_COOLDOWN_MS && shipCache.size > 0) {
+    const cached = Array.from(shipCache.values()).filter(s => now - s.ts < CACHE_TTL_MS);
+    return new Response(JSON.stringify({ ships: cached, count: cached.length, cached: true, ts: now }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  lastCollectAt = now;
+
+  const ships = shipCache;
 
   try {
     const ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
