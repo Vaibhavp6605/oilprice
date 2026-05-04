@@ -41,16 +41,24 @@ Deno.serve(async (req) => {
       }, 15000); // collect for 15s
 
       ws.onopen = () => {
-        ws.send(JSON.stringify({
+        const sub = {
           APIKey: apiKey,
           BoundingBoxes: [BBOX],
-          FilterMessageTypes: ["PositionReport", "ShipStaticData"],
-        }));
+        };
+        console.log("AIS subscribe:", JSON.stringify(sub));
+        ws.send(JSON.stringify(sub));
       };
 
+      let msgCount = 0;
       ws.onmessage = (ev) => {
+        msgCount++;
         try {
           const msg = JSON.parse(ev.data);
+          if (msgCount <= 3) console.log("AIS msg:", JSON.stringify(msg).slice(0, 300));
+          if (msg.error) {
+            console.error("AIS error:", msg.error);
+            return;
+          }
           const meta = msg.MetaData || {};
           const mmsi = meta.MMSI;
           if (!mmsi) return;
@@ -76,15 +84,22 @@ Deno.serve(async (req) => {
             }
           }
           if (meta.ShipName && !existing.name) existing.name = String(meta.ShipName).trim();
+          // Fall back to position from MetaData if available
+          if (!existing.lat && meta.latitude) existing.lat = meta.latitude;
+          if (!existing.lon && meta.longitude) existing.lon = meta.longitude;
           ships.set(mmsi, existing);
-        } catch {}
+        } catch (e) {
+          console.error("parse err", e);
+        }
       };
 
       ws.onerror = (e) => {
+        console.error("ws error", e);
         clearTimeout(timeout);
-        reject(e);
+        resolve();
       };
-      ws.onclose = () => {
+      ws.onclose = (e) => {
+        console.log("ws close", e.code, e.reason, "msgs:", msgCount);
         clearTimeout(timeout);
         resolve();
       };
