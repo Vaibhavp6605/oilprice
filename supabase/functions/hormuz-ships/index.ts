@@ -5,7 +5,7 @@ const corsHeaders = {
 };
 
 // Bounding box for Strait of Hormuz / approaches
-const BBOX = [[24.0, 54.5], [27.5, 58.5]];
+const BBOX = [[23.5, 54.0], [28.0, 59.0]];
 
 interface Ship {
   mmsi: number;
@@ -33,24 +33,38 @@ Deno.serve(async (req) => {
 
   try {
     const ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
+    ws.binaryType = "arraybuffer";
 
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
         try { ws.close(); } catch {}
         resolve();
-      }, 6000); // collect for 6s
+      }, 15000); // collect for 15s
 
       ws.onopen = () => {
-        ws.send(JSON.stringify({
+        const sub = {
           APIKey: apiKey,
           BoundingBoxes: [BBOX],
-          FilterMessageTypes: ["PositionReport", "ShipStaticData"],
-        }));
+        };
+        console.log("AIS subscribe:", JSON.stringify(sub));
+        ws.send(JSON.stringify(sub));
       };
 
-      ws.onmessage = (ev) => {
+      let msgCount = 0;
+      ws.onmessage = async (ev) => {
+        msgCount++;
         try {
-          const msg = JSON.parse(ev.data);
+          let raw: string;
+          if (typeof ev.data === "string") raw = ev.data;
+          else if (ev.data instanceof ArrayBuffer) raw = new TextDecoder().decode(ev.data);
+          else if (ev.data?.text) raw = await ev.data.text();
+          else raw = String(ev.data);
+          const msg = JSON.parse(raw);
+          if (msgCount <= 3) console.log("AIS msg:", JSON.stringify(msg).slice(0, 300));
+          if (msg.error) {
+            console.error("AIS error:", msg.error);
+            return;
+          }
           const meta = msg.MetaData || {};
           const mmsi = meta.MMSI;
           if (!mmsi) return;
@@ -76,15 +90,22 @@ Deno.serve(async (req) => {
             }
           }
           if (meta.ShipName && !existing.name) existing.name = String(meta.ShipName).trim();
+          // Fall back to position from MetaData if available
+          if (!existing.lat && meta.latitude) existing.lat = meta.latitude;
+          if (!existing.lon && meta.longitude) existing.lon = meta.longitude;
           ships.set(mmsi, existing);
-        } catch {}
+        } catch (e) {
+          console.error("parse err", e);
+        }
       };
 
       ws.onerror = (e) => {
+        console.error("ws error", e);
         clearTimeout(timeout);
-        reject(e);
+        resolve();
       };
-      ws.onclose = () => {
+      ws.onclose = (e) => {
+        console.log("ws close", e.code, e.reason, "msgs:", msgCount);
         clearTimeout(timeout);
         resolve();
       };
