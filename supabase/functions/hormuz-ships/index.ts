@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
       const timeout = setTimeout(() => {
         try { ws.close(); } catch {}
         resolve();
-      }, 6000); // collect for 6s
+      }, 15000); // collect for 15s
 
       ws.onopen = () => {
         ws.send(JSON.stringify({
