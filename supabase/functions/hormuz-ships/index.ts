@@ -133,6 +133,11 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Prune stale ships (not seen in CACHE_TTL_MS)
+  const cutoff = Date.now() - CACHE_TTL_MS;
+  for (const [mmsi, s] of ships) {
+    if (s.ts < cutoff) ships.delete(mmsi);
+  }
   const list = Array.from(ships.values()).filter((s) => s.lat && s.lon);
   return new Response(JSON.stringify({ ships: list, count: list.length, ts: Date.now() }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
