@@ -190,9 +190,16 @@ const HormuzMap = () => {
           )}
 
           {/* Active ships along the lane */}
-          {SHIPPING_LANE.slice(0, Math.min(currentShips, SHIPPING_LANE.length)).map((pos, i) => (
-            <Marker key={`ship-${i}`} position={pos} icon={shipIcon}>
-              <Popup>Active commercial transit</Popup>
+          {/* Live AIS ships from aisstream.io */}
+          {aisShips.map((s) => (
+            <Marker key={s.mmsi} position={[s.lat, s.lon]} icon={shipIcon}>
+              <Popup>
+                <strong>{s.name || `MMSI ${s.mmsi}`}</strong>
+                <br />
+                {s.sog.toFixed(1)} kn • {s.cog.toFixed(0)}°
+                <br />
+                <em style={{ fontSize: 10 }}>Live AIS · aisstream.io</em>
+              </Popup>
             </Marker>
           ))}
 
