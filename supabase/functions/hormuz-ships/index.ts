@@ -5,7 +5,7 @@ const corsHeaders = {
 };
 
 // Bounding box for Strait of Hormuz / approaches
-const BBOX = [[24.0, 54.5], [27.5, 58.5]];
+const BBOX = [[23.5, 54.0], [28.0, 59.0]];
 
 interface Ship {
   mmsi: number;
