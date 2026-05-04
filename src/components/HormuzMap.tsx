@@ -94,6 +94,29 @@ const HormuzMap = () => {
     10,
   );
 
+  const blockadeShipIcon = divIcon(
+    `<div style="
+      width:12px;height:12px;border-radius:50%;
+      background:hsl(0 84% 60%);
+      border:1.5px solid #fff;
+      box-shadow:0 0 12px 3px hsl(0 84% 60% / 0.9);
+    "></div>`,
+    12,
+  );
+
+  // Blockade zone center & radius (must match Circle below)
+  const BLOCKADE_CENTER: [number, number] = [26.55, 56.25];
+  const BLOCKADE_RADIUS_KM = 25;
+  const distKm = (a: [number, number], b: [number, number]) => {
+    const R = 6371;
+    const dLat = (b[0] - a[0]) * Math.PI / 180;
+    const dLon = (b[1] - a[1]) * Math.PI / 180;
+    const lat1 = a[0] * Math.PI / 180, lat2 = b[0] * Math.PI / 180;
+    const x = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+    return 2 * R * Math.asin(Math.sqrt(x));
+  };
+  const blockadeShips = aisShips.filter(s => distKm(BLOCKADE_CENTER, [s.lat, s.lon]) <= BLOCKADE_RADIUS_KM);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -189,19 +212,22 @@ const HormuzMap = () => {
             </Circle>
           )}
 
-          {/* Active ships along the lane */}
-          {/* Live AIS ships from aisstream.io */}
-          {aisShips.map((s) => (
-            <Marker key={s.mmsi} position={[s.lat, s.lon]} icon={shipIcon}>
-              <Popup>
-                <strong>{s.name || `MMSI ${s.mmsi}`}</strong>
-                <br />
-                {s.sog.toFixed(1)} kn • {s.cog.toFixed(0)}°
-                <br />
-                <em style={{ fontSize: 10 }}>Live AIS · aisstream.io</em>
-              </Popup>
-            </Marker>
-          ))}
+          {/* Live AIS ships from aisstream.io — red inside blockade zone, green elsewhere */}
+          {aisShips.map((s) => {
+            const inBlockade = distKm(BLOCKADE_CENTER, [s.lat, s.lon]) <= BLOCKADE_RADIUS_KM;
+            return (
+              <Marker key={s.mmsi} position={[s.lat, s.lon]} icon={inBlockade ? blockadeShipIcon : shipIcon}>
+                <Popup>
+                  <strong>{s.name || `MMSI ${s.mmsi}`}</strong>
+                  {inBlockade && <> — <span style={{color:"#dc2626"}}>⛔ in blockade zone</span></>}
+                  <br />
+                  {s.sog.toFixed(1)} kn • {s.cog.toFixed(0)}°
+                  <br />
+                  <em style={{ fontSize: 10 }}>Live AIS · aisstream.io</em>
+                </Popup>
+              </Marker>
+            );
+          })}
 
           {/* US Navy warships */}
           {usWarships.map((ws) => (
