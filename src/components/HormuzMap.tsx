@@ -48,7 +48,8 @@ const usWarships = [
 
 const HormuzMap = () => {
   const { data: snapshots, dataUpdatedAt } = useDailySnapshots();
-  const { data: aisShips = [] } = useAisShips();
+  const [refreshMode, setRefreshMode] = useState<RefreshMode>("cached");
+  const { data: aisShips = [], dataUpdatedAt: aisUpdatedAt, isFetching: aisFetching } = useAisShips(refreshMode);
   const allData = snapshots || [];
   const latest = allData[allData.length - 1];
   const prewar = allData.find((d) => d.war_day === -1) || allData[0];
