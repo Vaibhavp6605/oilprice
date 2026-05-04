@@ -1,8 +1,47 @@
 import { motion } from "framer-motion";
 import { Ship, AlertTriangle, Radio } from "lucide-react";
 import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, LayersControl } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
-import hormuzSatellite from "@/assets/hormuz-satellite.jpg";
+
+// Fix default marker icons (Leaflet + bundlers)
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+const divIcon = (html: string, size = 18) =>
+  L.divIcon({
+    html,
+    className: "",
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+
+// Real coordinates — Strait of Hormuz
+const STRAIT_CENTER: [number, number] = [26.5667, 56.25];
+
+// Traffic Separation Scheme (approximate inbound/outbound lanes through the Strait)
+const SHIPPING_LANE: [number, number][] = [
+  [26.95, 56.95], // Gulf of Oman entrance
+  [26.75, 56.55],
+  [26.55, 56.25], // narrowest point near Larak Island
+  [26.45, 55.95],
+  [26.30, 55.55], // Persian Gulf side
+];
+
+// US Navy 5th Fleet — approx published operating areas (NOT real-time AIS)
+const usWarships = [
+  { name: "USS Carl Vinson", type: "Aircraft Carrier", pos: [25.4, 57.3] as [number, number] },
+  { name: "USS Truxtun", type: "Destroyer (DDG-103)", pos: [25.7, 57.0] as [number, number] },
+  { name: "USS W.P. Lawrence", type: "Destroyer (DDG-110)", pos: [25.1, 57.6] as [number, number] },
+  { name: "USS Bataan", type: "Amphibious (LHD-5)", pos: [25.9, 57.8] as [number, number] },
+  { name: "USS Vella Gulf", type: "Cruiser (CG-72)", pos: [24.8, 57.1] as [number, number] },
+];
 
 const HormuzMap = () => {
   const { data: snapshots, dataUpdatedAt } = useDailySnapshots();
@@ -26,29 +65,25 @@ const HormuzMap = () => {
   const blockadePct = ((1 - currentShips / prewarShips) * 100).toFixed(1);
   const isBlocked = currentShips < 10;
 
-  // Generate animated ship dots (few active, many "stuck")
-  const activeShips = Array.from({ length: Math.min(currentShips, 5) }, (_, i) => ({
-    id: `active-${i}`,
-    x: 42 + Math.random() * 16,
-    y: 38 + Math.random() * 24,
-    active: true,
-  }));
+  const warshipIcon = (isCarrier: boolean) =>
+    divIcon(
+      `<div style="
+        width:${isCarrier ? 14 : 11}px;height:${isCarrier ? 14 : 11}px;
+        background:hsl(217 91% 60%);border:1.5px solid #fff;
+        transform:rotate(45deg);
+        box-shadow:0 0 10px 2px hsl(217 91% 60% / 0.7);
+      "></div>`,
+      isCarrier ? 14 : 11,
+    );
 
-  const stuckShips = Array.from({ length: Math.min(12, prewarShips - currentShips) }, (_, i) => ({
-    id: `stuck-${i}`,
-    x: i < 6 ? 15 + Math.random() * 20 : 65 + Math.random() * 20,
-    y: 20 + Math.random() * 60,
-    active: false,
-  }));
-
-  // US Navy warship positions (CENTCOM 5th Fleet — Carl Vinson CSG + escorts)
-  const usWarships = [
-    { id: "cvn-70", name: "USS Carl Vinson", type: "Carrier", x: 78, y: 55 },
-    { id: "ddg-103", name: "USS Truxtun", type: "Destroyer", x: 72, y: 48 },
-    { id: "ddg-110", name: "USS W.P. Lawrence", type: "Destroyer", x: 84, y: 62 },
-    { id: "lhd-5", name: "USS Bataan", type: "Amphibious", x: 88, y: 45 },
-    { id: "cg-72", name: "USS Vella Gulf", type: "Cruiser", x: 68, y: 65 },
-  ];
+  const shipIcon = divIcon(
+    `<div style="
+      width:10px;height:10px;border-radius:50%;
+      background:hsl(142 71% 45%);
+      box-shadow:0 0 8px 2px hsl(142 71% 45% / 0.8);
+    "></div>`,
+    10,
+  );
 
   return (
     <motion.div
@@ -61,21 +96,20 @@ const HormuzMap = () => {
         <div>
           <h3 className="text-sm sm:text-lg font-semibold text-foreground flex items-center gap-2">
             <Ship className="h-4 w-4 sm:h-5 sm:w-5 text-crisis-blue" />
-            <span className="hidden sm:inline">Strait of Hormuz — Live Blockade Map</span>
-            <span className="sm:hidden">Hormuz Blockade Map</span>
+            <span className="hidden sm:inline">Strait of Hormuz — Live Geographic Map</span>
+            <span className="sm:hidden">Hormuz Map</span>
           </h3>
           <p className="text-[9px] sm:text-xs text-muted-foreground mt-0.5">
-            Satellite view • Ship traffic overlay
+            Real coordinates • Esri / OSM tiles • Pan & zoom
           </p>
         </div>
         <div className="flex items-center gap-2">
           <div
             className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-mono bg-crisis-amber/10 text-crisis-amber border border-crisis-amber/30"
-            title="Ship counts are AI-estimated hourly based on news of the ceasefire. There is no free public real-time AIS feed for the Strait of Hormuz."
+            title="Map tiles are real. Ship counts and warship positions are AI estimates refreshed hourly — no free public real-time AIS feed exists for the Strait."
           >
             <Radio className="h-2.5 w-2.5 animate-pulse" />
             <span>AI ESTIMATE • {agoLabel}</span>
-            <span className="hidden sm:inline opacity-60">• hourly</span>
           </div>
           <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold ${
             isBlocked
@@ -88,148 +122,112 @@ const HormuzMap = () => {
         </div>
       </div>
 
-      <div className="relative aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-[70vh] lg:max-h-[800px] overflow-hidden">
-        {/* Satellite background */}
-        <img
-          src={hormuzSatellite}
-          alt="Satellite view of the Strait of Hormuz"
-          className="w-full h-full object-cover"
-          loading="lazy"
-          width={1280}
-          height={720}
-        />
+      <div className="relative h-[60vh] min-h-[400px] lg:h-[70vh] lg:max-h-[800px]">
+        <MapContainer
+          center={STRAIT_CENTER}
+          zoom={8}
+          minZoom={6}
+          maxZoom={13}
+          scrollWheelZoom
+          style={{ height: "100%", width: "100%", background: "#0a1929" }}
+        >
+          <LayersControl position="topright">
+            <LayersControl.BaseLayer checked name="Satellite (Esri)">
+              <TileLayer
+                attribution='Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics'
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              />
+            </LayersControl.BaseLayer>
+            <LayersControl.BaseLayer name="Streets (OSM)">
+              <TileLayer
+                attribution='&copy; OpenStreetMap contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{y}/{x}.png"
+              />
+            </LayersControl.BaseLayer>
+            <LayersControl.BaseLayer name="Ocean (Esri)">
+              <TileLayer
+                attribution='Tiles © Esri'
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
+              />
+            </LayersControl.BaseLayer>
+          </LayersControl>
 
-        {/* Dark overlay for data visibility */}
-        <div className="absolute inset-0 bg-black/40" />
+          {/* Shipping lane */}
+          <Polyline
+            positions={SHIPPING_LANE}
+            pathOptions={{ color: "hsl(142 71% 45%)", weight: 3, opacity: 0.7, dashArray: "6 6" }}
+          />
 
-        {/* Blockade zone - red pulsing area across the strait */}
-        {isBlocked && (
-          <motion.div
-            className="absolute"
-            style={{ left: "38%", top: "30%", width: "24%", height: "40%" }}
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <div className="w-full h-full rounded-full bg-crisis-red/30 border-2 border-crisis-red/50 border-dashed" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-crisis-red text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">
-              ⛔ Blockade Zone
-            </div>
-          </motion.div>
-        )}
-
-        {/* Active ships passing through */}
-        {activeShips.map((ship) => (
-          <motion.div
-            key={ship.id}
-            className="absolute"
-            style={{ left: `${ship.x}%`, top: `${ship.y}%` }}
-            animate={{ x: [0, 8, 0], y: [0, -4, 0] }}
-            transition={{ duration: 4 + Math.random() * 3, repeat: Infinity }}
-          >
-            <div className="relative">
-              <div className="h-2.5 w-2.5 rounded-full bg-crisis-green shadow-[0_0_8px_2px_hsl(142,71%,45%)]" />
-            </div>
-          </motion.div>
-        ))}
-
-        {/* Stuck/anchored ships */}
-        {stuckShips.map((ship) => (
-          <motion.div
-            key={ship.id}
-            className="absolute"
-            style={{ left: `${ship.x}%`, top: `${ship.y}%` }}
-            animate={{ opacity: [0.4, 0.7, 0.4] }}
-            transition={{ duration: 3, repeat: Infinity, delay: Math.random() * 2 }}
-          >
-            <div className="h-2 w-2 rounded-full bg-crisis-amber/60 border border-crisis-amber/40" />
-          </motion.div>
-        ))}
-
-        {/* US Navy warships */}
-        {usWarships.map((ws) => {
-          const isCarrier = ws.type === "Carrier";
-          return (
-            <motion.div
-              key={ws.id}
-              className="absolute group cursor-pointer"
-              style={{ left: `${ws.x}%`, top: `${ws.y}%` }}
-              animate={{ x: [0, 4, 0], y: [0, -2, 0] }}
-              transition={{ duration: 6 + Math.random() * 2, repeat: Infinity }}
+          {/* Blockade zone — narrowest choke point */}
+          {isBlocked && (
+            <Circle
+              center={[26.55, 56.25]}
+              radius={25000}
+              pathOptions={{
+                color: "hsl(0 84% 60%)",
+                fillColor: "hsl(0 84% 60%)",
+                fillOpacity: 0.2,
+                weight: 2,
+                dashArray: "8 6",
+              }}
             >
-              <motion.div
-                className="absolute inset-0 -m-1 rounded-sm border border-crisis-blue/60"
-                animate={{ scale: [1, 1.8, 1], opacity: [0.7, 0, 0.7] }}
-                transition={{ duration: 2.5, repeat: Infinity }}
-              />
-              <div
-                className={`${
-                  isCarrier ? "h-3 w-3" : "h-2 w-2"
-                } bg-crisis-blue border border-white/80 rotate-45 shadow-[0_0_10px_2px_hsl(217,91%,60%)]`}
-              />
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap bg-black/90 border border-crisis-blue/40 rounded px-1.5 py-0.5 text-[9px] font-mono text-white z-10">
-                🇺🇸 {ws.name} • {ws.type}
-              </div>
-            </motion.div>
-          );
-        })}
+              <Popup>
+                <strong>⛔ Blockade Zone</strong>
+                <br />
+                {blockadePct}% reduction in transit
+                <br />
+                {currentShips} of {prewarShips} normal ships/day
+              </Popup>
+            </Circle>
+          )}
 
-        {/* Labels */}
-        <div className="absolute top-[15%] left-[20%] text-[9px] sm:text-[11px] font-bold text-white/80 tracking-wider">
-          IRAN
-        </div>
-        <div className="absolute bottom-[15%] right-[25%] text-[9px] sm:text-[11px] font-bold text-white/80 tracking-wider">
-          UAE / OMAN
-        </div>
-        <div className="hidden sm:block absolute top-[8%] left-[8%] text-[10px] text-white/50 tracking-wider">
-          PERSIAN GULF ←
-        </div>
-        <div className="hidden sm:block absolute bottom-[8%] right-[8%] text-[10px] text-white/50 tracking-wider">
-          → GULF OF OMAN
-        </div>
+          {/* Active ships along the lane */}
+          {SHIPPING_LANE.slice(0, Math.min(currentShips, SHIPPING_LANE.length)).map((pos, i) => (
+            <Marker key={`ship-${i}`} position={pos} icon={shipIcon}>
+              <Popup>Active commercial transit</Popup>
+            </Marker>
+          ))}
+
+          {/* US Navy warships */}
+          {usWarships.map((ws) => (
+            <Marker
+              key={ws.name}
+              position={ws.pos}
+              icon={warshipIcon(ws.type.includes("Carrier"))}
+            >
+              <Popup>
+                🇺🇸 <strong>{ws.name}</strong>
+                <br />
+                {ws.type}
+                <br />
+                <em style={{ fontSize: 10 }}>Approx. operating area (not real-time AIS)</em>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
 
         {/* Stats overlay */}
-        <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 flex flex-wrap gap-1.5 sm:gap-2 max-w-[70%] sm:max-w-none">
-          <div className="bg-black/70 backdrop-blur-sm rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 border border-white/10">
+        <div className="absolute bottom-3 left-3 z-[400] flex flex-wrap gap-1.5 sm:gap-2 max-w-[70%] pointer-events-none">
+          <div className="bg-black/75 backdrop-blur-sm rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 border border-white/10">
             <div className="text-[8px] sm:text-[10px] text-white/60 uppercase tracking-wider">Ships</div>
             <div className="font-mono text-base sm:text-xl font-bold text-crisis-red">{currentShips}</div>
             <div className="text-[8px] sm:text-[10px] text-white/40">Norm: {prewarShips}</div>
           </div>
-          <div className="bg-black/70 backdrop-blur-sm rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 border border-white/10">
+          <div className="bg-black/75 backdrop-blur-sm rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 border border-white/10">
             <div className="text-[8px] sm:text-[10px] text-white/60 uppercase tracking-wider">Blockade</div>
             <div className="font-mono text-base sm:text-xl font-bold text-crisis-red">{blockadePct}%</div>
             <div className="text-[8px] sm:text-[10px] text-white/40">Reduction</div>
           </div>
-          <div className="bg-black/70 backdrop-blur-sm rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 border border-white/10">
+          <div className="bg-black/75 backdrop-blur-sm rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 border border-white/10">
             <div className="text-[8px] sm:text-[10px] text-white/60 uppercase tracking-wider">Day</div>
             <div className="font-mono text-base sm:text-xl font-bold text-white">{latest.war_day}</div>
             <div className="text-[8px] sm:text-[10px] text-white/40">{latest.phase}</div>
           </div>
         </div>
-
-        {/* Legend - hidden on very small screens */}
-        <div className="hidden sm:block absolute top-3 right-3 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/10">
-          <div className="text-[10px] text-white/60 uppercase tracking-wider mb-1.5">Legend</div>
-          <div className="flex items-center gap-1.5 mb-1">
-            <div className="h-2 w-2 rounded-full bg-crisis-green shadow-[0_0_4px_1px_hsl(142,71%,45%)]" />
-            <span className="text-[10px] text-white/70">Active transit</span>
-          </div>
-          <div className="flex items-center gap-1.5 mb-1">
-            <div className="h-2 w-2 rounded-full bg-crisis-amber/60 border border-crisis-amber/40" />
-            <span className="text-[10px] text-white/70">Anchored / waiting</span>
-          </div>
-          <div className="flex items-center gap-1.5 mb-1">
-            <div className="h-2 w-2 rounded-full bg-crisis-red/50 border border-dashed border-crisis-red/60" />
-            <span className="text-[10px] text-white/70">Blockade zone</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-2 w-2 bg-crisis-blue border border-white/80 rotate-45 shadow-[0_0_4px_1px_hsl(217,91%,60%)]" />
-            <span className="text-[10px] text-white/70">🇺🇸 US Navy warship</span>
-          </div>
-        </div>
       </div>
 
       <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-card border-t border-border text-[9px] sm:text-[10px] text-muted-foreground">
-        ⚠ Ship counts & warship positions are <strong>AI estimates</strong> refreshed hourly (grounded in news from Reuters, BBC, AAA, Kpler reports). Real-time AIS tracking requires a paid feed (MarineTraffic, Windward, Spire). Pre-war baseline: {prewarShips} ships/day (Statista verified).
+        ⚠ Map is real geography (Esri/OSM). Ship & warship markers are <strong>AI estimates</strong> refreshed hourly from news (Reuters, BBC, Kpler). Real-time AIS requires a paid feed (MarineTraffic, Windward, Spire). Pre-war baseline: {prewarShips} ships/day.
       </div>
     </motion.div>
   );
