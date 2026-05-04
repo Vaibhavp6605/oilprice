@@ -12,15 +12,17 @@ export interface AisShip {
   ts: number;
 }
 
-export const useAisShips = () => {
+export type RefreshMode = "live" | "cached";
+
+export const useAisShips = (mode: RefreshMode = "cached") => {
   return useQuery({
-    queryKey: ["hormuz-ais-ships"],
+    queryKey: ["hormuz-ais-ships", mode],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke("hormuz-ships");
       if (error) throw error;
       return (data?.ships || []) as AisShip[];
     },
-    refetchInterval: 60_000,
-    staleTime: 30_000,
+    refetchInterval: mode === "live" ? 20_000 : 5 * 60_000,
+    staleTime: mode === "live" ? 10_000 : 4 * 60_000,
   });
 };
