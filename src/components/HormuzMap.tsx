@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Ship, AlertTriangle, Radio } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, LayersControl } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
@@ -131,26 +131,14 @@ const HormuzMap = () => {
           scrollWheelZoom
           style={{ height: "100%", width: "100%", background: "#0a1929" }}
         >
-          <LayersControl position="topright">
-            <LayersControl.BaseLayer checked name="Satellite (Esri)">
-              <TileLayer
-                attribution='Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics'
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              />
-            </LayersControl.BaseLayer>
-            <LayersControl.BaseLayer name="Streets (OSM)">
-              <TileLayer
-                attribution='&copy; OpenStreetMap contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{y}/{x}.png"
-              />
-            </LayersControl.BaseLayer>
-            <LayersControl.BaseLayer name="Ocean (Esri)">
-              <TileLayer
-                attribution='Tiles © Esri'
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
-              />
-            </LayersControl.BaseLayer>
-          </LayersControl>
+          <TileLayer
+            attribution='Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          />
+          <TileLayer
+            attribution='Labels © Esri'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+          />
 
           {/* Shipping lane */}
           <Polyline
