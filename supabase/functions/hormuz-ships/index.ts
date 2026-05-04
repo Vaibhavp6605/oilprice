@@ -33,6 +33,7 @@ Deno.serve(async (req) => {
 
   try {
     const ws = new WebSocket("wss://stream.aisstream.io/v0/stream");
+    ws.binaryType = "arraybuffer";
 
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
