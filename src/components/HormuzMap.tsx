@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline } from "react-
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
+import { useAisShips } from "@/hooks/useAisShips";
 
 // Fix default marker icons (Leaflet + bundlers)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -45,6 +46,7 @@ const usWarships = [
 
 const HormuzMap = () => {
   const { data: snapshots, dataUpdatedAt } = useDailySnapshots();
+  const { data: aisShips = [] } = useAisShips();
   const allData = snapshots || [];
   const latest = allData[allData.length - 1];
   const prewar = allData.find((d) => d.war_day === -1) || allData[0];
@@ -188,9 +190,16 @@ const HormuzMap = () => {
           )}
 
           {/* Active ships along the lane */}
-          {SHIPPING_LANE.slice(0, Math.min(currentShips, SHIPPING_LANE.length)).map((pos, i) => (
-            <Marker key={`ship-${i}`} position={pos} icon={shipIcon}>
-              <Popup>Active commercial transit</Popup>
+          {/* Live AIS ships from aisstream.io */}
+          {aisShips.map((s) => (
+            <Marker key={s.mmsi} position={[s.lat, s.lon]} icon={shipIcon}>
+              <Popup>
+                <strong>{s.name || `MMSI ${s.mmsi}`}</strong>
+                <br />
+                {s.sog.toFixed(1)} kn • {s.cog.toFixed(0)}°
+                <br />
+                <em style={{ fontSize: 10 }}>Live AIS · aisstream.io</em>
+              </Popup>
             </Marker>
           ))}
 
