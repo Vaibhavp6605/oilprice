@@ -60,6 +60,13 @@ const HormuzMap = () => {
   const minsAgo = Math.max(0, Math.floor((now - dataUpdatedAt) / 60000));
   const agoLabel = minsAgo < 1 ? "just now" : `${minsAgo}m ago`;
 
+  // NASA GIBS publishes MODIS imagery for "yesterday" (UTC) once it's fully composited
+  const gibsDate = (() => {
+    const d = new Date(now);
+    d.setUTCDate(d.getUTCDate() - 1);
+    return d.toISOString().slice(0, 10);
+  })();
+
   const currentShips = latest.strait_hormuz_daily_ships;
   const prewarShips = prewar.strait_hormuz_daily_ships;
   const blockadePct = ((1 - currentShips / prewarShips) * 100).toFixed(1);
