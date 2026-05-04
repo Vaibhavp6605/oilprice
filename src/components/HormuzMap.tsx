@@ -222,14 +222,17 @@ const HormuzMap = () => {
             </Circle>
           )}
 
-          {/* Live AIS ships from aisstream.io — red inside blockade zone, green elsewhere */}
+          {/* Live AIS ships — orange=docked (sog<0.5), red=in blockade, green=transiting */}
           {aisShips.map((s) => {
             const inBlockade = distKm(BLOCKADE_CENTER, [s.lat, s.lon]) <= BLOCKADE_RADIUS_KM;
+            const isDocked = s.sog < 0.5;
+            const icon = isDocked ? dockedShipIcon : inBlockade ? blockadeShipIcon : shipIcon;
             return (
-              <Marker key={s.mmsi} position={[s.lat, s.lon]} icon={inBlockade ? blockadeShipIcon : shipIcon}>
+              <Marker key={s.mmsi} position={[s.lat, s.lon]} icon={icon}>
                 <Popup>
                   <strong>{s.name || `MMSI ${s.mmsi}`}</strong>
-                  {inBlockade && <> — <span style={{color:"#dc2626"}}>⛔ in blockade zone</span></>}
+                  {isDocked && <> — <span style={{color:"#d97706"}}>⚓ docked / anchored</span></>}
+                  {!isDocked && inBlockade && <> — <span style={{color:"#dc2626"}}>⛔ in blockade zone</span></>}
                   <br />
                   {s.sog.toFixed(1)} kn • {s.cog.toFixed(0)}°
                   <br />
