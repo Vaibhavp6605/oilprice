@@ -94,6 +94,16 @@ const HormuzMap = () => {
     10,
   );
 
+  const dockedShipIcon = divIcon(
+    `<div style="
+      width:10px;height:10px;
+      background:hsl(38 92% 50%);
+      border:1.5px solid #fff;
+      box-shadow:0 0 8px 2px hsl(38 92% 50% / 0.8);
+    "></div>`,
+    10,
+  );
+
   const blockadeShipIcon = divIcon(
     `<div style="
       width:12px;height:12px;border-radius:50%;
