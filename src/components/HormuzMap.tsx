@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline } from "react-
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
+import { useAisShips } from "@/hooks/useAisShips";
 
 // Fix default marker icons (Leaflet + bundlers)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
