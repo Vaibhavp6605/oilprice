@@ -131,9 +131,20 @@ const HormuzMap = () => {
           scrollWheelZoom
           style={{ height: "100%", width: "100%", background: "#0a1929" }}
         >
+          {/* NASA GIBS — MODIS Terra true-color, refreshed daily (yesterday for full coverage) */}
           <TileLayer
-            attribution='Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics'
+            attribution='Imagery © NASA EOSDIS GIBS — MODIS Terra (daily)'
+            url={`https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/${gibsDate}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`}
+            maxNativeZoom={9}
+            maxZoom={13}
+            tileSize={256}
+          />
+          {/* High-res Esri imagery overlay for closer zooms */}
+          <TileLayer
+            attribution='Tiles © Esri — Maxar, Earthstar Geographics'
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            opacity={0.85}
+            minZoom={10}
           />
           <TileLayer
             attribution='Labels © Esri'
