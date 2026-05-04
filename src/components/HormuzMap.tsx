@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Ship, AlertTriangle, Radio } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, LayersControl } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
