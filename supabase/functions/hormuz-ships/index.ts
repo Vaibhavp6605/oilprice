@@ -51,10 +51,15 @@ Deno.serve(async (req) => {
       };
 
       let msgCount = 0;
-      ws.onmessage = (ev) => {
+      ws.onmessage = async (ev) => {
         msgCount++;
         try {
-          const msg = JSON.parse(ev.data);
+          let raw: string;
+          if (typeof ev.data === "string") raw = ev.data;
+          else if (ev.data instanceof ArrayBuffer) raw = new TextDecoder().decode(ev.data);
+          else if (ev.data?.text) raw = await ev.data.text();
+          else raw = String(ev.data);
+          const msg = JSON.parse(raw);
           if (msgCount <= 3) console.log("AIS msg:", JSON.stringify(msg).slice(0, 300));
           if (msg.error) {
             console.error("AIS error:", msg.error);
