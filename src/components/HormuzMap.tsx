@@ -170,11 +170,11 @@ const HormuzMap = () => {
             />
           </div>
           <div
-            className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-mono bg-crisis-amber/10 text-crisis-amber border border-crisis-amber/30"
-            title="Map tiles are real. Ship counts and warship positions are AI estimates refreshed hourly — no free public real-time AIS feed exists for the Strait."
+            className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-mono bg-crisis-green/10 text-crisis-green border border-crisis-green/30"
+            title="Live AIS vessel positions from aisstream.io. Updated every few seconds."
           >
             <Radio className="h-2.5 w-2.5 animate-pulse" />
-            <span>AI ESTIMATE • {agoLabel}</span>
+            <span>LIVE AIS • {aisShips.length} ships • {agoLabel}</span>
           </div>
           <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold ${
             isBlocked
@@ -304,7 +304,7 @@ const HormuzMap = () => {
       </div>
 
       <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-card border-t border-border text-[9px] sm:text-[10px] text-muted-foreground">
-        ⚠ Map is real geography (Esri/OSM). Ship & warship markers are <strong>AI estimates</strong> refreshed hourly from news (Reuters, BBC, Kpler). Real-time AIS requires a paid feed (MarineTraffic, Windward, Spire). Pre-war baseline: {prewarShips} ships/day.
+        ✅ Vessel dots are <strong>live AIS</strong> (aisstream.io) — real MMSI, position, speed & course. US Navy diamonds are approximate operating areas (no public military AIS). Pre-war baseline: {prewarShips} ships/day.
       </div>
     </motion.div>
   );
