@@ -190,10 +190,17 @@ const HormuzMap = () => {
       <div className="relative h-[60vh] min-h-[400px] lg:h-[70vh] lg:max-h-[800px]">
         <MapContainer
           center={STRAIT_CENTER}
-          zoom={8}
-          minZoom={6}
-          maxZoom={13}
-          scrollWheelZoom
+          zoom={9}
+          minZoom={9}
+          maxZoom={9}
+          scrollWheelZoom={false}
+          dragging={false}
+          doubleClickZoom={false}
+          touchZoom={false}
+          boxZoom={false}
+          keyboard={false}
+          zoomControl={false}
+          maxBounds={[[25.8, 55.4], [27.2, 57.1]]}
           style={{ height: "100%", width: "100%", background: "#0a1929" }}
         >
           {/* NASA GIBS — MODIS Terra true-color, refreshed daily (yesterday for full coverage) */}
