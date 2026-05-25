@@ -34,14 +34,14 @@ const Index = () => {
     );
   }
 
-  // Use scenario DB as source of truth; EIA only fills missing values
+  // Live EIA prices win over scenario DB (EIA refreshes daily)
   const latest = {
     ...hardcodedLatest,
-    brent_usd_barrel: hardcodedLatest.brent_usd_barrel || live?.brent_usd_barrel || 0,
-    wti_usd_barrel: hardcodedLatest.wti_usd_barrel || live?.wti_usd_barrel || 0,
-    dubai_usd_barrel: hardcodedLatest.dubai_usd_barrel || live?.dubai_usd_barrel || 0,
-    us_gas_avg_gallon: hardcodedLatest.us_gas_avg_gallon || live?.us_gas_avg_gallon || 0,
-    us_diesel_avg_gallon: hardcodedLatest.us_diesel_avg_gallon || live?.us_diesel_avg_gallon || 0,
+    brent_usd_barrel: live?.brent_usd_barrel ?? hardcodedLatest.brent_usd_barrel ?? 0,
+    wti_usd_barrel: live?.wti_usd_barrel ?? hardcodedLatest.wti_usd_barrel ?? 0,
+    dubai_usd_barrel: live?.dubai_usd_barrel ?? hardcodedLatest.dubai_usd_barrel ?? 0,
+    us_gas_avg_gallon: live?.us_gas_avg_gallon ?? hardcodedLatest.us_gas_avg_gallon ?? 0,
+    us_diesel_avg_gallon: live?.us_diesel_avg_gallon ?? hardcodedLatest.us_diesel_avg_gallon ?? 0,
   };
 
   const isLive = !!snapshots?.length;
