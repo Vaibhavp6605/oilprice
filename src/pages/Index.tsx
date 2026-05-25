@@ -179,6 +179,8 @@ const Index = () => {
           />
         </div>
 
+        <MarketStressKpis />
+
         {/* Recent Events */}
         <RecentEvents />
 
@@ -191,6 +193,13 @@ const Index = () => {
         <div className="grid gap-6 lg:grid-cols-2">
           <HormuzChart />
           <PredictionPanel />
+        </div>
+
+        <VesselSeizures />
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <RegionalHeatmap />
+          <AlternativeRoutes />
         </div>
 
         {/* Timeline */}
