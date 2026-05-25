@@ -9,6 +9,11 @@ import PredictionPanel from "@/components/PredictionPanel";
 import HormuzChart from "@/components/HormuzChart";
 import HormuzMap from "@/components/HormuzMap";
 import RecentEvents from "@/components/RecentEvents";
+import StatusCountdown from "@/components/StatusCountdown";
+import MarketStressKpis from "@/components/MarketStressKpis";
+import VesselSeizures from "@/components/VesselSeizures";
+import RegionalHeatmap from "@/components/RegionalHeatmap";
+import AlternativeRoutes from "@/components/AlternativeRoutes";
 import { useEIAPrices } from "@/hooks/useEIAPrices";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
 
@@ -89,6 +94,8 @@ const Index = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
+        <StatusCountdown />
+
         {/* KPI Row */}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <KpiCard
