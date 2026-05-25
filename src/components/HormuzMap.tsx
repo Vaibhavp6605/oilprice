@@ -308,7 +308,29 @@ const HormuzMap = () => {
             <div className="text-[8px] sm:text-[10px] text-white/40">{latest.phase}</div>
           </div>
         </div>
+
+        {/* Legend */}
+        <div className="absolute top-3 right-3 z-[400] bg-black/80 backdrop-blur-sm rounded-lg p-2 sm:p-3 border border-white/10 text-white text-[9px] sm:text-[10px] space-y-1.5">
+          <div className="font-bold uppercase tracking-wider text-white/70 mb-1">Legend</div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-crisis-green shadow-[0_0_6px_hsl(142_71%_45%)]" />
+            <span>Transiting vessel (AIS)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-2.5 h-2.5 bg-amber-500 border border-white" />
+            <span>Docked / anchored</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-3 h-3 rounded-full bg-crisis-red border border-white shadow-[0_0_6px_hsl(0_84%_60%)]" />
+            <span>In blockade zone</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-3 h-3 bg-crisis-blue border border-white rotate-45 shadow-[0_0_6px_hsl(217_91%_60%)]" />
+            <span>🇺🇸 US Navy warship</span>
+          </div>
+        </div>
       </div>
+
 
       <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-card border-t border-border text-[9px] sm:text-[10px] text-muted-foreground">
         ✅ Vessel dots are <strong>live AIS</strong> (aisstream.io) — real MMSI, position, speed & course. US Navy diamonds are approximate operating areas (no public military AIS). Pre-war baseline: {prewarShips} ships/day.
