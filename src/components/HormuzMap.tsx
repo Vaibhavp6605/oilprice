@@ -46,6 +46,25 @@ const usWarships = [
   { name: "USS Vella Gulf", type: "Cruiser (CG-72)", pos: [24.8, 57.1] as [number, number] },
 ];
 
+// US / allied military bases in the region (real, public locations)
+const usBases = [
+  { name: "NSA Bahrain (5th Fleet HQ)", country: "🇧🇭 Bahrain", pos: [26.211, 50.609] as [number, number] },
+  { name: "Al Udeid Air Base", country: "🇶🇦 Qatar", pos: [25.117, 51.315] as [number, number] },
+  { name: "Al Dhafra Air Base", country: "🇦🇪 UAE", pos: [24.248, 54.547] as [number, number] },
+  { name: "Fujairah Naval Base", country: "🇦🇪 UAE", pos: [25.171, 56.342] as [number, number] },
+  { name: "Camp Arifjan", country: "🇰🇼 Kuwait", pos: [28.886, 48.108] as [number, number] },
+  { name: "Thumrait Air Base", country: "🇴🇲 Oman", pos: [17.666, 54.025] as [number, number] },
+];
+
+// Deterministic hourly drift so warship positions "refresh" each hour without random jumps
+const hourSeed = () => Math.floor(Date.now() / (60 * 60 * 1000));
+const driftPos = (pos: [number, number], idx: number): [number, number] => {
+  const h = hourSeed() + idx * 17;
+  const dLat = (Math.sin(h * 1.3) * 0.06);
+  const dLon = (Math.cos(h * 0.9) * 0.08);
+  return [pos[0] + dLat, pos[1] + dLon];
+};
+
 const HormuzMap = () => {
   const { data: snapshots, dataUpdatedAt } = useDailySnapshots();
   const [refreshMode, setRefreshMode] = useState<RefreshMode>("cached");
