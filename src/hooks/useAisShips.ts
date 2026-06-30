@@ -14,15 +14,18 @@ export interface AisShip {
 
 export type RefreshMode = "live" | "cached";
 
-export const useAisShips = (mode: RefreshMode = "cached") => {
+const HOUR_MS = 60 * 60 * 1000;
+
+export const useAisShips = (_mode: RefreshMode = "cached") => {
   return useQuery({
-    queryKey: ["hormuz-ais-ships", mode],
+    queryKey: ["hormuz-ais-ships", "hourly"],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke("hormuz-ships");
       if (error) throw error;
       return (data?.ships || []) as AisShip[];
     },
-    refetchInterval: mode === "live" ? 20_000 : 5 * 60_000,
-    staleTime: mode === "live" ? 10_000 : 4 * 60_000,
+    refetchInterval: HOUR_MS,
+    staleTime: HOUR_MS - 60_000,
+    refetchOnWindowFocus: false,
   });
 };
