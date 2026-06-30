@@ -65,8 +65,7 @@ const driftPos = (pos: [number, number], idx: number): [number, number] => {
 
 const HormuzMap = () => {
   const { data: snapshots, dataUpdatedAt } = useDailySnapshots();
-  const [refreshMode, setRefreshMode] = useState<RefreshMode>("cached");
-  const { data: aisShips = [], dataUpdatedAt: aisUpdatedAt, isFetching: aisFetching } = useAisShips(refreshMode);
+  const { data: aisShips = [], dataUpdatedAt: aisUpdatedAt } = useAisShips();
   const allData = snapshots || [];
   const latest = allData[allData.length - 1];
   const prewar = allData.find((d) => d.war_day === -1) || allData[0];
