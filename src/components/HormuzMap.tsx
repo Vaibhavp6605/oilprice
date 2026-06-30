@@ -291,19 +291,48 @@ const HormuzMap = () => {
             );
           })}
 
-          {/* US Navy warships */}
-          {usWarships.map((ws) => (
+          {/* US Navy warships (hourly drift) */}
+          {usWarships.map((ws, i) => {
+            const p = driftPos(ws.pos, i);
+            return (
+              <Marker
+                key={ws.name}
+                position={p}
+                icon={warshipIcon(ws.type.includes("Carrier"))}
+              >
+                <Popup>
+                  🇺🇸 <strong>{ws.name}</strong>
+                  <br />
+                  {ws.type}
+                  <br />
+                  <em style={{ fontSize: 10 }}>Approx. operating area · refreshed hourly</em>
+                </Popup>
+              </Marker>
+            );
+          })}
+
+          {/* US / allied military bases (static, real coordinates) */}
+          {usBases.map((b) => (
             <Marker
-              key={ws.name}
-              position={ws.pos}
-              icon={warshipIcon(ws.type.includes("Carrier"))}
+              key={b.name}
+              position={b.pos}
+              icon={divIcon(
+                `<div style="
+                  width:14px;height:14px;
+                  background:hsl(48 96% 53%);
+                  border:2px solid #fff;
+                  clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);
+                  box-shadow:0 0 8px 2px hsl(48 96% 53% / 0.8);
+                "></div>`,
+                14,
+              )}
             >
               <Popup>
-                🇺🇸 <strong>{ws.name}</strong>
+                ⭐ <strong>{b.name}</strong>
                 <br />
-                {ws.type}
+                {b.country}
                 <br />
-                <em style={{ fontSize: 10 }}>Approx. operating area (not real-time AIS)</em>
+                <em style={{ fontSize: 10 }}>US / allied military base</em>
               </Popup>
             </Marker>
           ))}
