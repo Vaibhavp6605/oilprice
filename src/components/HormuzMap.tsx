@@ -160,40 +160,20 @@ const HormuzMap = () => {
         <div>
           <h3 className="text-sm sm:text-lg font-semibold text-foreground flex items-center gap-2">
             <Ship className="h-4 w-4 sm:h-5 sm:w-5 text-crisis-blue" />
-            <span className="hidden sm:inline">Strait of Hormuz — Live Geographic Map</span>
+            <span className="hidden sm:inline">Strait of Hormuz — Regional Map</span>
             <span className="sm:hidden">Hormuz Map</span>
           </h3>
           <p className="text-[9px] sm:text-xs text-muted-foreground mt-0.5">
-            Real coordinates • Esri / OSM tiles • Pan & zoom
+            Static view • Vessels, warships & bases refresh hourly
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div
-            className="flex items-center gap-2 px-2 py-1 rounded-full bg-card border border-border"
-            title={refreshMode === "live" ? "Streaming live AIS — refreshes every 20s" : "Cached snapshot — refreshes every 5 min"}
-          >
-            <Label htmlFor="live-toggle" className="text-[9px] sm:text-[10px] font-mono cursor-pointer select-none">
-              {refreshMode === "live" ? (
-                <span className="text-crisis-green flex items-center gap-1">
-                  <Radio className={`h-2.5 w-2.5 ${aisFetching ? "animate-pulse" : ""}`} />
-                  LIVE
-                </span>
-              ) : (
-                <span className="text-muted-foreground">CACHED</span>
-              )}
-            </Label>
-            <Switch
-              id="live-toggle"
-              checked={refreshMode === "live"}
-              onCheckedChange={(c) => setRefreshMode(c ? "live" : "cached")}
-            />
-          </div>
-          <div
             className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-mono bg-crisis-green/10 text-crisis-green border border-crisis-green/30"
-            title="Live AIS vessel positions from aisstream.io. Updated every few seconds."
+            title="Vessel and warship positions refresh once per hour."
           >
             <Radio className="h-2.5 w-2.5 animate-pulse" />
-            <span>LIVE AIS • {aisShips.length} ships • {agoLabel}</span>
+            <span>HOURLY • {aisShips.length} ships • {agoLabel}</span>
           </div>
           <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold ${
             isBlocked
