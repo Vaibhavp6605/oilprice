@@ -376,6 +376,10 @@ const HormuzMap = () => {
             <span className="inline-block w-3 h-3 bg-crisis-blue border border-white rotate-45 shadow-[0_0_6px_hsl(217_91%_60%)]" />
             <span>🇺🇸 US Navy warship</span>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-3 h-3 bg-yellow-400 border border-white shadow-[0_0_6px_hsl(48_96%_53%)]" style={{clipPath:"polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%)"}} />
+            <span>⭐ US / allied base</span>
+          </div>
         </div>
       </div>
 
