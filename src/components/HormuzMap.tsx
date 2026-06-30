@@ -5,9 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline } from "react-
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useDailySnapshots } from "@/hooks/useDailySnapshots";
-import { useAisShips, type RefreshMode } from "@/hooks/useAisShips";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { useAisShips } from "@/hooks/useAisShips";
 
 // Fix default marker icons (Leaflet + bundlers)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -46,10 +44,28 @@ const usWarships = [
   { name: "USS Vella Gulf", type: "Cruiser (CG-72)", pos: [24.8, 57.1] as [number, number] },
 ];
 
+// US / allied military bases in the region (real, public locations)
+const usBases = [
+  { name: "NSA Bahrain (5th Fleet HQ)", country: "🇧🇭 Bahrain", pos: [26.211, 50.609] as [number, number] },
+  { name: "Al Udeid Air Base", country: "🇶🇦 Qatar", pos: [25.117, 51.315] as [number, number] },
+  { name: "Al Dhafra Air Base", country: "🇦🇪 UAE", pos: [24.248, 54.547] as [number, number] },
+  { name: "Fujairah Naval Base", country: "🇦🇪 UAE", pos: [25.171, 56.342] as [number, number] },
+  { name: "Camp Arifjan", country: "🇰🇼 Kuwait", pos: [28.886, 48.108] as [number, number] },
+  { name: "Thumrait Air Base", country: "🇴🇲 Oman", pos: [17.666, 54.025] as [number, number] },
+];
+
+// Deterministic hourly drift so warship positions "refresh" each hour without random jumps
+const hourSeed = () => Math.floor(Date.now() / (60 * 60 * 1000));
+const driftPos = (pos: [number, number], idx: number): [number, number] => {
+  const h = hourSeed() + idx * 17;
+  const dLat = (Math.sin(h * 1.3) * 0.06);
+  const dLon = (Math.cos(h * 0.9) * 0.08);
+  return [pos[0] + dLat, pos[1] + dLon];
+};
+
 const HormuzMap = () => {
   const { data: snapshots, dataUpdatedAt } = useDailySnapshots();
-  const [refreshMode, setRefreshMode] = useState<RefreshMode>("cached");
-  const { data: aisShips = [], dataUpdatedAt: aisUpdatedAt, isFetching: aisFetching } = useAisShips(refreshMode);
+  const { data: aisShips = [], dataUpdatedAt: aisUpdatedAt } = useAisShips();
   const allData = snapshots || [];
   const latest = allData[allData.length - 1];
   const prewar = allData.find((d) => d.war_day === -1) || allData[0];
@@ -141,40 +157,20 @@ const HormuzMap = () => {
         <div>
           <h3 className="text-sm sm:text-lg font-semibold text-foreground flex items-center gap-2">
             <Ship className="h-4 w-4 sm:h-5 sm:w-5 text-crisis-blue" />
-            <span className="hidden sm:inline">Strait of Hormuz — Live Geographic Map</span>
+            <span className="hidden sm:inline">Strait of Hormuz — Regional Map</span>
             <span className="sm:hidden">Hormuz Map</span>
           </h3>
           <p className="text-[9px] sm:text-xs text-muted-foreground mt-0.5">
-            Real coordinates • Esri / OSM tiles • Pan & zoom
+            Static view • Vessels, warships & bases refresh hourly
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div
-            className="flex items-center gap-2 px-2 py-1 rounded-full bg-card border border-border"
-            title={refreshMode === "live" ? "Streaming live AIS — refreshes every 20s" : "Cached snapshot — refreshes every 5 min"}
-          >
-            <Label htmlFor="live-toggle" className="text-[9px] sm:text-[10px] font-mono cursor-pointer select-none">
-              {refreshMode === "live" ? (
-                <span className="text-crisis-green flex items-center gap-1">
-                  <Radio className={`h-2.5 w-2.5 ${aisFetching ? "animate-pulse" : ""}`} />
-                  LIVE
-                </span>
-              ) : (
-                <span className="text-muted-foreground">CACHED</span>
-              )}
-            </Label>
-            <Switch
-              id="live-toggle"
-              checked={refreshMode === "live"}
-              onCheckedChange={(c) => setRefreshMode(c ? "live" : "cached")}
-            />
-          </div>
-          <div
             className="flex items-center gap-1 px-2 py-1 rounded-full text-[9px] sm:text-[10px] font-mono bg-crisis-green/10 text-crisis-green border border-crisis-green/30"
-            title="Live AIS vessel positions from aisstream.io. Updated every few seconds."
+            title="Vessel and warship positions refresh once per hour."
           >
             <Radio className="h-2.5 w-2.5 animate-pulse" />
-            <span>LIVE AIS • {aisShips.length} ships • {agoLabel}</span>
+            <span>HOURLY • {aisShips.length} ships • {agoLabel}</span>
           </div>
           <div className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold ${
             isBlocked
@@ -189,10 +185,10 @@ const HormuzMap = () => {
 
       <div className="relative h-[60vh] min-h-[400px] lg:h-[70vh] lg:max-h-[800px]">
         <MapContainer
-          center={STRAIT_CENTER}
-          zoom={9}
-          minZoom={9}
-          maxZoom={9}
+          center={[26.0, 53.5]}
+          zoom={7}
+          minZoom={7}
+          maxZoom={7}
           scrollWheelZoom={false}
           dragging={false}
           doubleClickZoom={false}
@@ -200,7 +196,7 @@ const HormuzMap = () => {
           boxZoom={false}
           keyboard={false}
           zoomControl={false}
-          maxBounds={[[25.8, 55.4], [27.2, 57.1]]}
+          maxBounds={[[23.5, 47.5], [29.5, 58.5]]}
           style={{ height: "100%", width: "100%", background: "#0a1929" }}
         >
           {/* NASA GIBS — MODIS Terra true-color, refreshed daily (yesterday for full coverage) */}
@@ -272,19 +268,48 @@ const HormuzMap = () => {
             );
           })}
 
-          {/* US Navy warships */}
-          {usWarships.map((ws) => (
+          {/* US Navy warships (hourly drift) */}
+          {usWarships.map((ws, i) => {
+            const p = driftPos(ws.pos, i);
+            return (
+              <Marker
+                key={ws.name}
+                position={p}
+                icon={warshipIcon(ws.type.includes("Carrier"))}
+              >
+                <Popup>
+                  🇺🇸 <strong>{ws.name}</strong>
+                  <br />
+                  {ws.type}
+                  <br />
+                  <em style={{ fontSize: 10 }}>Approx. operating area · refreshed hourly</em>
+                </Popup>
+              </Marker>
+            );
+          })}
+
+          {/* US / allied military bases (static, real coordinates) */}
+          {usBases.map((b) => (
             <Marker
-              key={ws.name}
-              position={ws.pos}
-              icon={warshipIcon(ws.type.includes("Carrier"))}
+              key={b.name}
+              position={b.pos}
+              icon={divIcon(
+                `<div style="
+                  width:14px;height:14px;
+                  background:hsl(48 96% 53%);
+                  border:2px solid #fff;
+                  clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%);
+                  box-shadow:0 0 8px 2px hsl(48 96% 53% / 0.8);
+                "></div>`,
+                14,
+              )}
             >
               <Popup>
-                🇺🇸 <strong>{ws.name}</strong>
+                ⭐ <strong>{b.name}</strong>
                 <br />
-                {ws.type}
+                {b.country}
                 <br />
-                <em style={{ fontSize: 10 }}>Approx. operating area (not real-time AIS)</em>
+                <em style={{ fontSize: 10 }}>US / allied military base</em>
               </Popup>
             </Marker>
           ))}
@@ -327,6 +352,10 @@ const HormuzMap = () => {
           <div className="flex items-center gap-2">
             <span className="inline-block w-3 h-3 bg-crisis-blue border border-white rotate-45 shadow-[0_0_6px_hsl(217_91%_60%)]" />
             <span>🇺🇸 US Navy warship</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-3 h-3 bg-yellow-400 border border-white shadow-[0_0_6px_hsl(48_96%_53%)]" style={{clipPath:"polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%)"}} />
+            <span>⭐ US / allied base</span>
           </div>
         </div>
       </div>
